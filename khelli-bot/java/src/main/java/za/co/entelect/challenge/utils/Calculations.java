@@ -45,8 +45,8 @@ public class Calculations {
                 score += Constants.MIDDLE_OBS_SCORE;
             } else if (terrain == Terrain.CYBERTRUCK) {
                 score += Constants.HIGH_OBS_SCORE;
-            } else if (terrain == Terrain.TWEET) {
-                score -= Constants.LOW_OBS_SCORE;
+            } else if (terrain == Terrain.BOOST) {
+                score -= Constants.HIGH_OBS_SCORE;
             }
         }
         return score;

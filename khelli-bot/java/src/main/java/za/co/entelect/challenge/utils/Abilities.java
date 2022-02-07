@@ -47,6 +47,10 @@ public class Abilities {
         return Abilities.EMP;
     }
 
+    public static Boolean isAbleToSeeEnemy(Car myCar, Car opponent) {
+        return (Math.abs(myCar.position.block - opponent.position.block) < 20);
+    }
+
     public static Command avoidEnemy(int leftScore, int rightScore) {
         if (rightScore <= leftScore) {
             return Abilities.TURN_RIGHT;

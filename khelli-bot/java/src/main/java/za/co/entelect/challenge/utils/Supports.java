@@ -1,6 +1,5 @@
 package za.co.entelect.challenge.utils;
 
-import za.co.entelect.challenge.entities.Car;
 import za.co.entelect.challenge.entities.GameState;
 import za.co.entelect.challenge.enums.PowerUps;
 
@@ -41,7 +40,18 @@ public class Supports {
         return false;
     }
 
-    public static Boolean isAbleToSeeEnemy(Car myCar, Car opponent) {
-        return (Math.abs(myCar.position.block - opponent.position.block) < 20);
+    public static int getAcceleratedSpeed(int speed) {
+        switch (speed) {
+            case 0:
+                return 3;
+            case 3:
+                return 5;
+            case 5:
+                return 6;
+            case 6:
+                return 8;
+            default:
+                return 9;
+        }
     }
 }

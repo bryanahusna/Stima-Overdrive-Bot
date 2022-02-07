@@ -26,12 +26,17 @@ public class Bot {
 
     public Command run() {
         // Calculate obstacle score in list [LEFT, FRONT, RIGHT]
-        List<Integer> laneScores = Calculations.calculateLaneScores(this.gameState, this.myCar.speed);
+        List<Integer> laneScores = Calculations.calculateLaneScores(this.gameState,
+                Supports.getAcceleratedSpeed(this.myCar.speed));
         int leftScore = laneScores.get(0);
         int frontScore = laneScores.get(1);
         int rightScore = laneScores.get(2);
 
-        if (this.myCar.damage > 3
+        if (Abilities.isEnemySameLane(this.myCar, this.opponent)) {
+            return Abilities.avoidEnemy(leftScore, rightScore);
+        }
+
+        if (this.myCar.damage >= 2
                 && this.currentSpeedLimit == this.myCar.speed) {
             return Abilities.FIX;
         }
@@ -54,12 +59,14 @@ public class Bot {
 
         if (Abilities.isEnemyInFront(this.myCar, this.opponent)
                 && Abilities.isEnemySameLane(this.myCar, this.opponent)
-                && Supports.hasPowerUp(PowerUps.EMP, this.myCar.powerups)) {
+                && Supports.hasPowerUp(PowerUps.EMP, this.myCar.powerups)
+                && Abilities.isAbleToSeeEnemy(this.myCar, this.opponent)) {
             return Abilities.EMP;
         }
 
         if (Abilities.isEnemyInFront(this.myCar, this.opponent)
-                && Supports.hasPowerUp(PowerUps.EMP, this.myCar.powerups)) {
+                && Supports.hasPowerUp(PowerUps.EMP, this.myCar.powerups)
+                && Abilities.isAbleToSeeEnemy(this.myCar, this.opponent)) {
             return Abilities.followEnemy(this.myCar, this.opponent);
         }
 
