@@ -26,11 +26,10 @@ public class Bot {
 
     public Command run() {
         // Calculate obstacle score in list [LEFT, FRONT, RIGHT]
-        List<Integer> laneScores = Calculations.calculateLaneScores(this.gameState,
-                this.myCar, this.opponent, this.myCar.speed);
+        List<Integer> laneScores = Calculations.calculateLaneScores(this.gameState, this.myCar.speed);
         int leftScore = laneScores.get(0);
         int frontScore = laneScores.get(1);
-        int rightScore = laneScores.get(1);
+        int rightScore = laneScores.get(2);
 
         if (this.myCar.damage > 3
                 && this.currentSpeedLimit == this.myCar.speed) {
@@ -44,31 +43,31 @@ public class Bot {
 
         if (Supports.hasPowerUp(PowerUps.TWEET, this.myCar.powerups)) {
             return Abilities.TWEET(this.opponent.position.lane,
-                    this.opponent.position.block + opponent.speed + 1);
+                    this.opponent.position.block + this.opponent.speed + 1);
         }
 
-        if (Abilities.isEnemyBehind(myCar, opponent)
-                && Abilities.isEnemySameLane(myCar, opponent)
+        if (Abilities.isEnemyBehind(this.myCar, this.opponent)
+                && Abilities.isEnemySameLane(this.myCar, this.opponent)
                 && Supports.hasPowerUp(PowerUps.OIL, this.myCar.powerups)) {
             return Abilities.OIL;
         }
 
-        if (Abilities.isEnemyInFront(myCar, opponent)
-                && Abilities.isEnemySameLane(myCar, opponent)
+        if (Abilities.isEnemyInFront(this.myCar, this.opponent)
+                && Abilities.isEnemySameLane(this.myCar, this.opponent)
                 && Supports.hasPowerUp(PowerUps.EMP, this.myCar.powerups)) {
             return Abilities.EMP;
         }
 
-        if (Abilities.isEnemyInFront(myCar, opponent)
+        if (Abilities.isEnemyInFront(this.myCar, this.opponent)
                 && Supports.hasPowerUp(PowerUps.EMP, this.myCar.powerups)) {
-            return Abilities.followEnemy(myCar, opponent);
+            return Abilities.followEnemy(this.myCar, this.opponent);
         }
 
-        if (frontScore > 0 && myCar.speed > 0) {
+        if (frontScore > 0 && this.myCar.speed > 0) {
             if (frontScore <= leftScore && frontScore <= rightScore) {
-                if (myCar.speed < this.currentSpeedLimit
-                        && Supports.hasPowerUp(PowerUps.BOOST, myCar.powerups)) {
-                    if (myCar.damage > 0) {
+                if (this.myCar.speed < this.currentSpeedLimit
+                        && Supports.hasPowerUp(PowerUps.BOOST, this.myCar.powerups)) {
+                    if (this.myCar.damage > 0) {
                         return Abilities.FIX;
                     } else {
                         return Abilities.BOOST;

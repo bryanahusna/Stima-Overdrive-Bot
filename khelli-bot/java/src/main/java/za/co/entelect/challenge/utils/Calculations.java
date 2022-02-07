@@ -1,6 +1,5 @@
 package za.co.entelect.challenge.utils;
 
-import za.co.entelect.challenge.entities.Car;
 import za.co.entelect.challenge.entities.GameState;
 import za.co.entelect.challenge.entities.Lane;
 import za.co.entelect.challenge.enums.Terrain;
@@ -11,17 +10,16 @@ import java.util.List;
 import static java.lang.Math.max;
 
 public class Calculations {
-    public static List<Integer> calculateLaneScores(GameState gameState,
-                                                    Car myCar, Car opponent, Integer speed) {
-        List<Terrain> leftBlocks = getBlocksInFront(myCar.position.lane - 1,
-                myCar.position.block,
-                gameState, myCar, opponent, speed);
-        List<Terrain> frontBlocks = getBlocksInFront(myCar.position.lane,
-                myCar.position.block,
-                gameState, myCar, opponent, speed);
-        List<Terrain> rightBlocks = getBlocksInFront(myCar.position.lane + 1,
-                myCar.position.block,
-                gameState, myCar, opponent, speed);
+    public static List<Integer> calculateLaneScores(GameState gameState, int speed) {
+        List<Terrain> leftBlocks = getBlocksInFront(gameState.player.position.lane - 1,
+                gameState.player.position.block,
+                gameState, speed);
+        List<Terrain> frontBlocks = getBlocksInFront(gameState.player.position.lane,
+                gameState.player.position.block,
+                gameState, speed);
+        List<Terrain> rightBlocks = getBlocksInFront(gameState.player.position.lane + 1,
+                gameState.player.position.block,
+                gameState, speed);
 
         List<Integer> laneScores = new ArrayList<>();
         laneScores.add(calculateObstacleScore(leftBlocks));
@@ -55,8 +53,7 @@ public class Calculations {
     }
 
     private static List<Terrain> getBlocksInFront(int lane, int block,
-                                                  GameState gameState,
-                                                  Car myCar, Car opponent, Integer speed) {
+                                                  GameState gameState, int speed) {
         /*
          * Returns map of blocks and the objects in the for the current lanes, returns the amount of blocks that can be
          * traversed at max speed.
@@ -76,7 +73,7 @@ public class Calculations {
             if (laneList[i] == null || laneList[i].terrain == Terrain.FINISH) {
                 break;
             }
-            if (lane - 1 == opponent.position.lane && i == opponent.position.block) {
+            if (lane - 1 == gameState.opponent.position.lane && i == gameState.opponent.position.block) {
                 blocks.add(Terrain.ENEMY);
             } else {
                 blocks.add(laneList[i].terrain);
