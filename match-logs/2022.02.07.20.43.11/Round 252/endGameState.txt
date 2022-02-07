@@ -1,0 +1,6 @@
+Match seed: 56050
+
+The winner is: A - Khelli
+
+A - Khelli - score:214 health:0
+B - Bryan - score:-31 health:0

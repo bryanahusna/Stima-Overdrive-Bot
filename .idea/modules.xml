@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/bryan-bot/java/java-bryan-bot.iml" filepath="$PROJECT_DIR$/bryan-bot/java/java-bryan-bot.iml" />
+      <module fileurl="file://$PROJECT_DIR$/khelli-bot/java/java-khelli-bot.iml" filepath="$PROJECT_DIR$/khelli-bot/java/java-khelli-bot.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/overdrive-greedy-bot.iml" filepath="$PROJECT_DIR$/.idea/overdrive-greedy-bot.iml" />
+    </modules>
+  </component>
+</project>
