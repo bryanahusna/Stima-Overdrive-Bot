@@ -1,0 +1,10 @@
+======================================================================================================
+round:46
+player: id:1 position: y:1 x:328 speed:3 state:HIT_WALL statesThatOccurredThisRound:USED_BOOST, HIT_MUD, HIT_WALL boosting:false boost-counter:0 damage:3 score:42 powerups: OIL:4, BOOST:2, EMP:1
+opponent: id:2 position: y:1 x:488 speed:9
+
+[░░░░░1T░░░░░▓▓▓▓░░░░░░░░░░]
+[░░░░░░░░░░Φ░░░░░░░░░░░░▓▓▓]
+[░░░░░░░░░░░░░░░░░░░░░T░░░░]
+[░░░░░░░░░*░░░░░░░░░░░▓▓░░░]
+======================================================================================================
