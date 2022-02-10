@@ -31,12 +31,14 @@ public class Scoring {
     public float calculate(){
         Car initialCar = gameState.player;
         Car currentCar = initialCar.clone();
+        boolean isvalid;
         for(Command cmd : commands){
-            simulate(currentCar, this.gameState, cmd);
+            isvalid = simulate(currentCar, this.gameState, cmd);
+            if(!isvalid)
+                return INVALID_COMMAND;
         }
         
         return multiplyWeights(initialCar, currentCar);
-        //return INVALID_COMMAND;
     }
 
     public static float multiplyWeights(Car initialCar, Car finalCar){
@@ -61,80 +63,81 @@ public class Scoring {
     }
 
     /* PROSEDUR Menyimulasikan car menerima command
-     * F.S.: car berubah mendapatkan efek setelah menjalankan command cmd */
-    public static void simulate(Car car, GameState gameState, Command cmd){
+     * F.S.: car berubah mendapatkan efek setelah menjalankan command cmd
+     * Return true jika valid, false jika tidak */
+    public static boolean simulate(Car car, GameState gameState, Command cmd){
         List<Lane[]> lanes = gameState.lanes;
-        // TODO:
-        // Jika mengambil block melebihi map
-        // Jika belok kiri/kanan sementara berada di paling atas/bawah
-        // Mengurangi powerup lizard ketika digunakan
+        int startBlockPos = car.position.block + 1;
         if(Supports.isCommandEqual(cmd, Abilities.ACCELERATE)){
             car.speed = Supports.getAcceleratedSpeed(car.speed, car.damage);
             car.position.block += car.speed;
-            List<Terrain> terrains = Supports.getBlocks(car.position.lane,
-                                                        car.position.block + 1,
-                                                        car.speed,
-                                                        lanes);
-            simulateBlocks(car, terrains);
         } else if(Supports.isCommandEqual(cmd, Abilities.BOOST)){
             car.speed = Supports.getBoostedSpeed(car.damage);
             car.position.block += car.speed;
-            List<Terrain> terrains = Supports.getBlocks(car.position.lane,
-                                                        car.position.block + 1,
-                                                        car.speed,
-                                                        lanes);
-            simulateBlocks(car, terrains);
         } else if(Supports.isCommandEqual(cmd, Abilities.TURN_LEFT)){
+            if(car.position.lane == 1)
+                return false;
+            startBlockPos = car.position.block;
             car.position.block += (car.speed - 1);
             car.position.lane -= 1;
-            List<Terrain> terrains = Supports.getBlocks(car.position.lane - 1,
-                                                        car.position.block,
-                                                        car.speed,
-                                                        lanes);
-            simulateBlocks(car, terrains);
         } else if(Supports.isCommandEqual(cmd, Abilities.TURN_RIGHT)){
+            if(car.position.lane == 4)
+                return false;
+            startBlockPos = car.position.block;
             car.position.block += (car.speed - 1);
             car.position.lane += 1;
-            List<Terrain> terrains = Supports.getBlocks(car.position.lane + 1,
-                                                        car.position.block,
-                                                        car.speed,
-                                                        lanes);
-            simulateBlocks(car, terrains);
         } else if(Supports.isCommandEqual(cmd, Abilities.FIX)){
             car.damage -= 2;
             car.damage = Math.max(0, car.damage);
         } else if(Supports.isCommandEqual(cmd, Abilities.LIZARD)){
-            car.position.block += car.speed;
-            List<Terrain> terrains = Supports.getBlocks(car.position.lane,
-                                                        car.position.block + 1,
-                                                        car.speed,
-                                                        lanes);
-            for(int i = 0; i < terrains.size() - 1; i++){
-                terrains.set(i, Terrain.EMPTY);
+            if(!Supports.hasPowerUp(PowerUps.LIZARD, car.powerups))
+                return false;
+            // Mengurangi 1 powerup lizard
+            PowerUps[] newPowers = new PowerUps[car.powerups.length - 1];
+            int i = 0;
+            while(i < newPowers.length){
+                if(car.powerups[i] == PowerUps.LIZARD)
+                    break;
+                newPowers[i] = car.powerups[i];
             }
-            simulateBlocks(car, terrains);
+            while(i < newPowers.length){
+                newPowers[i] = car.powerups[i + 1];
+            }
+            car.powerups = newPowers;
+            car.position.block += car.speed;
+
         } else if(Supports.isCommandEqual(cmd, Abilities.DECELERATE)){
             car.speed = Supports.getDeceleratedSpeed(car.speed, false);
             car.position.block += car.speed;
-            List<Terrain> terrains = Supports.getBlocks(car.position.lane,
-                                                        car.position.block + 1,
-                                                        car.speed,
-                                                        lanes);
-            simulateBlocks(car, terrains);
         } else{
             car.position.block += car.speed;
-            List<Terrain> terrains = Supports.getBlocks(car.position.lane,
-                                                        car.position.block + 1,
+        }
+
+        /* Kalau mobil melebihi batas render block, command invalid */
+        if(car.position.block > lanes.get(0)[lanes.get(0).length - 1].position.block 
+                && lanes.get(0)[lanes.get(0).length - 1].position.block < 1500){
+                    return false;
+        }
+
+        List<Terrain> terrains = Supports.getBlocks(car.position.lane,
+                                                        startBlockPos,
                                                         car.speed,
                                                         lanes);
-            simulateBlocks(car, terrains);
+
+        if(Supports.isCommandEqual(cmd, Abilities.LIZARD)){
+            for(int i = 0; i < terrains.size() - 1; i++){
+                terrains.set(i, Terrain.EMPTY);
+            }
         }
+
+        simulateBlocks(car, terrains);
+
+        return true;
     }
 
     /* PROSEDUR Menyimulasikan car melewati block-block
      * F.S.: car berubah mendapatkan efek dari terrain yang dilaluinya */
     public static void simulateBlocks(Car car, List<Terrain> terrains){
-        //car.position.block += terrains.size();
         List<PowerUps> newPowers = new ArrayList<>();
         for(Terrain terrain : terrains){
             if(terrain == Terrain.MUD){
