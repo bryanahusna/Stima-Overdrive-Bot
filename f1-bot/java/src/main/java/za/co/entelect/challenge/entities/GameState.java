@@ -1,9 +1,11 @@
 package za.co.entelect.challenge.entities;
 
 import com.google.gson.annotations.SerializedName;
+import za.co.entelect.challenge.command.Command;
 import za.co.entelect.challenge.enums.Terrain;
 
 import java.util.List;
+import java.util.Queue;
 
 public class GameState {
     public void cybertruckLaneToTerrain(){
@@ -31,4 +33,8 @@ public class GameState {
     @SerializedName("worldMap")
     public List<Lane[]> lanes;
 
+    public Map currentMap;
+    public void setMap(Map map){
+        this.currentMap = map;
+    }
 }

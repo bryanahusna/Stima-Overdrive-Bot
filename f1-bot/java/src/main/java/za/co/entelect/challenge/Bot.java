@@ -4,14 +4,12 @@ import za.co.entelect.challenge.algorithm.Scoring;
 import za.co.entelect.challenge.command.Command;
 import za.co.entelect.challenge.entities.Car;
 import za.co.entelect.challenge.entities.GameState;
-import za.co.entelect.challenge.enums.PowerUps;
+import za.co.entelect.challenge.entities.Map;
 import za.co.entelect.challenge.utils.Abilities;
-import za.co.entelect.challenge.utils.Calculations;
 import za.co.entelect.challenge.utils.Supports;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 public class Bot {
     private final GameState gameState;
@@ -19,11 +17,13 @@ public class Bot {
     private final Car myCar;
     private final int currentSpeedLimit;
 
-    public Bot(Random random, GameState gameState) {
+    public Bot(GameState gameState, Map globalMap) {
         this.gameState = gameState;
+        this.gameState.setMap(globalMap);
         this.myCar = gameState.player;
         this.opponent = gameState.opponent;
         this.currentSpeedLimit = Supports.getCurrentSpeedLimit(gameState.player.damage);
+
     }
 
     public Command run() {

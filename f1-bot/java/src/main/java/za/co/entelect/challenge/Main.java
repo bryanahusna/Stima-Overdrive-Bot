@@ -3,7 +3,7 @@ package za.co.entelect.challenge;
 import com.google.gson.Gson;
 import za.co.entelect.challenge.command.Command;
 import za.co.entelect.challenge.entities.GameState;
-import za.co.entelect.challenge.enums.Terrain;
+import za.co.entelect.challenge.entities.Map;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -14,7 +14,6 @@ public class Main {
 
     private static final String ROUNDS_DIRECTORY = "rounds";
     private static final String STATE_FILE_NAME = "state.json";
-
     /**
      * Read the current state, feed it to the bot, get the output and print it to stdout
      *
@@ -24,7 +23,7 @@ public class Main {
 
         Scanner sc = new Scanner(System.in);
         Gson gson = new Gson();
-        Random random = new Random(System.nanoTime());
+        Map globalMap = new Map();
 
         while (true) {
             try {
@@ -35,9 +34,10 @@ public class Main {
 
                 GameState gameState = gson.fromJson(state, GameState.class);
                 gameState.cybertruckLaneToTerrain();
-                Command command = new Bot(random, gameState).run();
-
+                Command command = new Bot(gameState, globalMap).run();
+                // update globalMap
                 System.out.println(String.format("C;%d;%s", roundNumber, command.render()));
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
