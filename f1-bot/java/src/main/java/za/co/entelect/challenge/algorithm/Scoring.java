@@ -72,6 +72,8 @@ public class Scoring {
             car.speed = Supports.getAcceleratedSpeed(car.speed, car.damage);
             car.position.block += car.speed;
         } else if(Supports.isCommandEqual(cmd, Abilities.BOOST)){
+            if(!Supports.hasPowerUp(PowerUps.BOOST, car.powerups))
+                return false;
             car.speed = Supports.getBoostedSpeed(car.damage);
             car.position.block += car.speed;
         } else if(Supports.isCommandEqual(cmd, Abilities.TURN_LEFT)){
@@ -93,17 +95,19 @@ public class Scoring {
             if(!Supports.hasPowerUp(PowerUps.LIZARD, car.powerups))
                 return false;
             // Mengurangi 1 powerup lizard
-            PowerUps[] newPowers = new PowerUps[car.powerups.length - 1];
-            int i = 0;
-            while(i < newPowers.length){
-                if(car.powerups[i] == PowerUps.LIZARD)
-                    break;
-                newPowers[i] = car.powerups[i];
-            }
-            while(i < newPowers.length){
-                newPowers[i] = car.powerups[i + 1];
-            }
-            car.powerups = newPowers;
+            // PowerUps[] newPowers = new PowerUps[car.powerups.length - 1];
+            // int i = 0;
+            // while(i < newPowers.length){
+            //     if(car.powerups[i] == PowerUps.LIZARD)
+            //         break;
+            //     newPowers[i] = car.powerups[i];
+            //     i++;
+            // }
+            // while(i < newPowers.length){
+            //     newPowers[i] = car.powerups[i + 1];
+            //     i++;
+            // }
+            // car.powerups = newPowers;
             car.position.block += car.speed;
 
         } else if(Supports.isCommandEqual(cmd, Abilities.DECELERATE)){
@@ -114,10 +118,10 @@ public class Scoring {
         }
 
         /* Kalau mobil melebihi batas render block, command invalid */
-        if(car.position.block > lanes.get(0)[lanes.get(0).length - 1].position.block 
-                && lanes.get(0)[lanes.get(0).length - 1].position.block < 1500){
-                    return false;
-        }
+        //if(car.position.block > lanes.get(0)[lanes.get(0).length - 1].position.block 
+        //        && lanes.get(0)[lanes.get(0).length - 1].position.block < 1500){
+        //            return false;
+        //}
 
         List<Terrain> terrains = Supports.getBlocks(car.position.lane,
                                                         startBlockPos,
@@ -130,7 +134,9 @@ public class Scoring {
             }
         }
 
-        simulateBlocks(car, terrains);
+        if(!Supports.isCommandEqual(cmd, Abilities.FIX)){
+            simulateBlocks(car, terrains);
+        }
 
         return true;
     }

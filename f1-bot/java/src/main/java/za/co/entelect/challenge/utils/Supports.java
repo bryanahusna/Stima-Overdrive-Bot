@@ -20,7 +20,7 @@ public class Supports {
 
         int startIdx = startBlock - laneArr[0].position.block;
         int endIdx = startIdx + length - 1;
-        for (int i = startIdx; i <= endIdx; i++) {
+        for (int i = startIdx; i <= endIdx && i < laneArr.length; i++) {
             if (laneArr[i] == null || laneArr[i].terrain == Terrain.FINISH) {
                 break;
             }

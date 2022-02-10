@@ -1,5 +1,6 @@
 package za.co.entelect.challenge;
 
+import za.co.entelect.challenge.algorithm.Scoring;
 import za.co.entelect.challenge.command.Command;
 import za.co.entelect.challenge.entities.Car;
 import za.co.entelect.challenge.entities.GameState;
@@ -8,6 +9,7 @@ import za.co.entelect.challenge.utils.Abilities;
 import za.co.entelect.challenge.utils.Calculations;
 import za.co.entelect.challenge.utils.Supports;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -25,8 +27,68 @@ public class Bot {
     }
 
     public Command run() {
+        Command[] commands = new Command[6];
+        commands[0] = Abilities.ACCELERATE;
+        commands[1] = Abilities.BOOST;
+        commands[2] = Abilities.TURN_LEFT;
+        commands[3] = Abilities.TURN_RIGHT;
+        commands[4] = Abilities.LIZARD;
+        commands[5] = Abilities.FIX;
+        Scoring bestCmds = null;
+        float bestScore = Scoring.INVALID_COMMAND;
+
+        for(int i = 0; i < 6; i++){
+            float currentScore;
+            List<Command> cmds = new ArrayList<>();
+            cmds.add(commands[i]);
+            Scoring currScoring = new Scoring(cmds, gameState);
+            currentScore = currScoring.calculate();
+            if(currentScore > bestScore){
+                bestScore = currentScore;
+                bestCmds = currScoring;
+            }
+        }
+
+        for(int i = 0; i < 6; i++){
+            for(int j = 0; j < 6; j++){
+                float currentScore;
+                List<Command> cmds = new ArrayList<>();
+                cmds.add(commands[i]);
+                cmds.add(commands[j]);
+                Scoring currScoring = new Scoring(cmds, gameState);
+                currentScore = currScoring.calculate();
+                if(currentScore > bestScore){
+                    bestScore = currentScore;
+                    bestCmds = currScoring;
+                }
+            }
+        }
+
+        for(int i = 0; i < 6; i++){
+            for(int j = 0; j < 6; j++){
+                for(int k = 0; k < 6; k++){
+                    float currentScore;
+                    List<Command> cmds = new ArrayList<>();
+                    cmds.add(commands[i]);
+                    cmds.add(commands[j]);
+                    cmds.add(commands[k]);
+                    Scoring currScoring = new Scoring(cmds, gameState);
+                    currentScore = currScoring.calculate();
+                    if(currentScore > bestScore){
+                        bestScore = currentScore;
+                        bestCmds = currScoring;
+                    }
+                }
+            }
+        }
+        
+        if(bestCmds != null){
+            return bestCmds.commands.get(0);
+        }
+
         // Calculate obstacle score in list [LEFT, FRONT, RIGHT]
-        List<Integer> laneScores = Calculations.calculateLaneScores(this.gameState,
+        
+        /*List<Integer> laneScores = Calculations.calculateLaneScores(this.gameState,
                 Supports.getAcceleratedSpeed(this.myCar.speed, this.myCar.damage));
         int leftScore = laneScores.get(0);
         int frontScore = laneScores.get(1);
@@ -88,7 +150,7 @@ public class Bot {
             } else {
                 return Abilities.TURN_RIGHT;
             }
-        }
+        }*/
 
         return Abilities.ACCELERATE;
     }
