@@ -11,7 +11,9 @@ public class Map {
     public Map(){
         map =  new Tile[x_size][y_size];
     }
-
+    public Tile getTile(int x, int y){
+        return this.map[x][y];
+    }
     public void update(GameState curState){
         // Update setiap nemu view baru
     }

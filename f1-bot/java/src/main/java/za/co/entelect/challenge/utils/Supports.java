@@ -9,6 +9,8 @@ import za.co.entelect.challenge.command.Command;
 import za.co.entelect.challenge.enums.PowerUps;
 import za.co.entelect.challenge.enums.Terrain;
 import za.co.entelect.challenge.entities.Lane;
+import za.co.entelect.challenge.globalentities.GlobalState;
+import za.co.entelect.challenge.globalentities.Tile;
 
 public class Supports {
     /* Mengecek apakah dua command adalah command yang setipe */
@@ -31,6 +33,50 @@ public class Supports {
             blocks.add(laneArr[i].terrain);
         }
         return blocks;
+    }
+
+    public static List<Tile> getPath(int x, int y, int v, int damage, Command cmd, GlobalState state){
+        List<Tile> ret = new ArrayList<Tile>();
+        ret.add(state.map.getTile(x, y));
+        int dx = 0;
+        int dy = 0;
+        if(isCommandEqual(cmd, Abilities.TURN_LEFT)){
+            dy -= 1;
+            dx -= 1;
+        }
+        else if(isCommandEqual(cmd, Abilities.TURN_RIGHT)){
+            dy += 1;
+            dx -= 1;
+        }
+        else if(isCommandEqual(cmd, Abilities.ACCELERATE)){
+            v = getAcceleratedSpeed(v, damage);
+        }
+        else if(isCommandEqual(cmd, Abilities.DECELERATE)){
+            v = getDeceleratedSpeed(v, false);
+        }
+        else if(isCommandEqual(cmd, Abilities.BOOST)){
+            v = getBoostedSpeed(damage);
+        }
+        if(isCommandEqual(cmd, Abilities.FIX)){
+            return ret;
+        }
+        else if(isCommandEqual(cmd, Abilities.LIZARD)){
+            ret.add(state.map.getTile(x+dx+v, y));
+            return ret;
+        }
+        else{
+            y += dy;
+            if(dy!=0){
+                ret.add(state.map.getTile(x, y));
+            }
+            for(int i = x+1; i<=x+dx+v; i++){
+                ret.add(state.map.getTile(i, y));
+                if(state.map.getTile(i, y).layer==Terrain.CYBERTRUCK){
+                    break;
+                }
+            }
+            return ret;
+        }
     }
 
     public static int getCurrentSpeedLimit(int damage) {
@@ -123,8 +169,4 @@ public class Supports {
         return Math.min(15, getCurrentSpeedLimit(damage));
     }
 
-    public static void TrackLog(Queue<LogState> Q){
-        LogState curLog = Q.remove();
-        //Bot.enemy.update(curLog);
-    }
 }

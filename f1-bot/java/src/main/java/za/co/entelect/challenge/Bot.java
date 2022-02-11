@@ -22,9 +22,6 @@ public class Bot {
     private static final String ROUNDS_DIRECTORY = "rounds";
     private static final String STATE_FILE_NAME = "state.json";
     public GlobalState globalState;
-    public Map globalMap;
-    public Player player;
-    public Player enemy;
     public Queue<LogState> log;
     public GameState gameState;
     public Car opponent;
@@ -32,26 +29,31 @@ public class Bot {
     public int currentSpeedLimit;
 
     public Bot() {
-
-        this.globalMap = new Map();
         this.globalState = new GlobalState();
-        this.player = new Player(1);
-        this.enemy = new Player(2);
         this.log = new LinkedList<LogState>();
     }
 
-    public void takeRound(GameState gameState){
+    public void takeRound(GameState gameState, Command command){
         gameState.cybertruckLaneToTerrain();
+        GlobalState prevState = this.globalState;
         this.gameState = gameState;
         this.myCar = gameState.player;
         this.opponent = gameState.opponent;
         this.currentSpeedLimit = Supports.getCurrentSpeedLimit(gameState.player.damage);
+        this.globalState.map.update(gameState);
+        this.globalState.player.update(gameState);
+        if(command != null){
+            this.log.add(new LogState(prevState, this.globalState, command));
+            // TODO:
+            // Lanjutin eksekusi log
+            // enemy di update berdasarkan log
+        }
     }
 
     public void run() {
         Scanner sc = new Scanner(System.in);
         Gson gson = new Gson();
-
+        Command prevCommand = null;
         while (true) {
             try {
                 int roundNumber = sc.nextInt();
@@ -60,17 +62,16 @@ public class Bot {
                 String state = new String(Files.readAllBytes(Paths.get(statePath)));
 
                 GameState gameState = gson.fromJson(state, GameState.class);
-                takeRound(gameState);
+                takeRound(gameState, prevCommand);
 
-//                Command command = new Bot(gameState, this.globalMap).run();
                 Command command = Abilities.ACCELERATE; // pake search
                 System.out.println(String.format("C;%d;%s", roundNumber, command.render()));
+                prevCommand = command;
 
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-        // update globalentities disini
 
 //        Command[] commands = new Command[6];
 //        commands[0] = Abilities.ACCELERATE;

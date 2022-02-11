@@ -2,52 +2,38 @@ package za.co.entelect.challenge.utils;
 
 import za.co.entelect.challenge.command.Command;
 import za.co.entelect.challenge.entities.GameState;
+import za.co.entelect.challenge.enums.Terrain;
+import za.co.entelect.challenge.globalentities.GlobalState;
+import za.co.entelect.challenge.globalentities.Player;
+import za.co.entelect.challenge.globalentities.Tile;
 
 import java.util.ArrayList;
 import java.util.List;
 // Masih dalam progress
 public class Tree {
-    public class Node{
-        public List<Command> actions;
-        public GameState curState;
-        public Node(GameState gameState){
-            this.actions = new ArrayList<Command>();
-            this.curState = gameState;
+    public GlobalState SimulateActions(Command PlayerAction, Command EnemyAction, GlobalState InitState){
+        GlobalState ret = InitState;
+        Player player = ret.player;
+        Player enemy = ret.enemy;
+        // calculate path sampe tile == cybertruck
+        List<Tile> PlayerPath = Supports.getPath(player.pos_x, player.pos_y, player.speed, player.damage, PlayerAction, ret);
+        List<Tile> EnemyPath = Supports.getPath(enemy.pos_x, enemy.pos_y, enemy.speed, enemy.damage, EnemyAction, ret);
+
+        if(Supports.isCommandEqual(PlayerAction, Abilities.FIX)){
+            player.damage = Math.max(0, player.damage-2);
         }
-        public Node(List<Command> actions, GameState gameState){
-            this.actions = actions;
-            this.curState = gameState;
+        if(Supports.isCommandEqual(EnemyAction, Abilities.FIX)){
+            enemy.damage = Math.max(0, enemy.damage-2);
         }
-    }
-    public Node curNode;
-    public Tree(GameState gamestate){
-        curNode = new Node(gamestate);
-    }
-    private Command predictOpp(GameState gameState){
-        return Abilities.ACCELERATE;
-    }
-    private List<Command> validAct(GameState gameState){
-        List<Command> ret = new ArrayList<Command>();
-        ret.add(Abilities.ACCELERATE);
-        return ret;
-    }
-    public GameState getNextState(GameState initState, Command Cmd, Command oppCmd){
-        return new GameState();
-    }
-    public List<Node> Adj(){
-        List<Command> actions = this.curNode.actions;
-        GameState afterState = this.curNode.curState;
-        // update afterstate dengan state selanjutnya
-        for(Command Cmd:actions){
-            Command oppCmd = predictOpp(afterState);
-            afterState = getNextState(afterState, Cmd, oppCmd);
+        if(PlayerPath.get(PlayerPath.size()-1).tile == Terrain.CYBERTRUCK){
+            player.score -= 7;
+            player.damage = Math.min(player.damage+2, 5);
+            player.nBoost = 0;
         }
-        List<Node> ret = new ArrayList<Node>();
-        for(Command command: validAct(afterState)){
-            actions.add(command);
-            Node adjacentNode = new Node(actions, afterState);
-            ret.add(adjacentNode);
-            actions.remove(actions.size()-1);
+        if(EnemyPath.get(EnemyPath.size()-1).tile == Terrain.CYBERTRUCK){
+            enemy.score -= 7;
+            enemy.damage = Math.min(enemy.damage+2, 5);
+            enemy.nBoost = 0;
         }
         return ret;
     }

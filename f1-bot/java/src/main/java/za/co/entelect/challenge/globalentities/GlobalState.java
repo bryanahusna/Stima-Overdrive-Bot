@@ -1,15 +1,13 @@
 package za.co.entelect.challenge.globalentities;
 
-import za.co.entelect.challenge.entities.GameState;
 
 public class GlobalState {
-    Player player;
-    Player enemy;
-    Map map;
+    public Player player;
+    public Player enemy;
+    public Map map;
     public GlobalState(){
-
-    }
-    public void update(GameState curState){
-
+        this.player = new Player(1);
+        this.enemy = new Player(2);
+        this.map = new Map();
     }
 }
