@@ -1,90 +1,135 @@
 package za.co.entelect.challenge;
 
-import za.co.entelect.challenge.algorithm.Scoring;
+import com.google.gson.Gson;
 import za.co.entelect.challenge.command.Command;
 import za.co.entelect.challenge.entities.Car;
 import za.co.entelect.challenge.entities.GameState;
-import za.co.entelect.challenge.entities.Map;
+import za.co.entelect.challenge.globalentities.GlobalState;
+import za.co.entelect.challenge.globalentities.Map;
+import za.co.entelect.challenge.globalentities.Player;
 import za.co.entelect.challenge.utils.Abilities;
+import za.co.entelect.challenge.utils.LogState;
 import za.co.entelect.challenge.utils.Supports;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Scanner;
+
 
 public class Bot {
-    private final GameState gameState;
-    private final Car opponent;
-    private final Car myCar;
-    private final int currentSpeedLimit;
+    private static final String ROUNDS_DIRECTORY = "rounds";
+    private static final String STATE_FILE_NAME = "state.json";
+    public GlobalState globalState;
+    public Map globalMap;
+    public Player player;
+    public Player enemy;
+    public Queue<LogState> log;
+    public GameState gameState;
+    public Car opponent;
+    public Car myCar;
+    public int currentSpeedLimit;
 
-    public Bot(GameState gameState, Map globalMap) {
+    public Bot() {
+
+        this.globalMap = new Map();
+        this.globalState = new GlobalState();
+        this.player = new Player(1);
+        this.enemy = new Player(2);
+        this.log = new LinkedList<LogState>();
+    }
+
+    public void takeRound(GameState gameState){
+        gameState.cybertruckLaneToTerrain();
         this.gameState = gameState;
-        this.gameState.setMap(globalMap);
         this.myCar = gameState.player;
         this.opponent = gameState.opponent;
         this.currentSpeedLimit = Supports.getCurrentSpeedLimit(gameState.player.damage);
-
     }
 
-    public Command run() {
-        Command[] commands = new Command[6];
-        commands[0] = Abilities.ACCELERATE;
-        commands[1] = Abilities.BOOST;
-        commands[2] = Abilities.TURN_LEFT;
-        commands[3] = Abilities.TURN_RIGHT;
-        commands[4] = Abilities.LIZARD;
-        commands[5] = Abilities.FIX;
-        Scoring bestCmds = null;
-        float bestScore = Scoring.INVALID_COMMAND;
+    public void run() {
+        Scanner sc = new Scanner(System.in);
+        Gson gson = new Gson();
 
-        for(int i = 0; i < 6; i++){
-            float currentScore;
-            List<Command> cmds = new ArrayList<>();
-            cmds.add(commands[i]);
-            Scoring currScoring = new Scoring(cmds, gameState);
-            currentScore = currScoring.calculate();
-            if(currentScore > bestScore){
-                bestScore = currentScore;
-                bestCmds = currScoring;
+        while (true) {
+            try {
+                int roundNumber = sc.nextInt();
+
+                String statePath = String.format("./%s/%d/%s", ROUNDS_DIRECTORY, roundNumber, STATE_FILE_NAME);
+                String state = new String(Files.readAllBytes(Paths.get(statePath)));
+
+                GameState gameState = gson.fromJson(state, GameState.class);
+                takeRound(gameState);
+
+//                Command command = new Bot(gameState, this.globalMap).run();
+                Command command = Abilities.ACCELERATE; // pake search
+                System.out.println(String.format("C;%d;%s", roundNumber, command.render()));
+
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
+        // update globalentities disini
 
-        for(int i = 0; i < 6; i++){
-            for(int j = 0; j < 6; j++){
-                float currentScore;
-                List<Command> cmds = new ArrayList<>();
-                cmds.add(commands[i]);
-                cmds.add(commands[j]);
-                Scoring currScoring = new Scoring(cmds, gameState);
-                currentScore = currScoring.calculate();
-                if(currentScore > bestScore){
-                    bestScore = currentScore;
-                    bestCmds = currScoring;
-                }
-            }
-        }
-
-        for(int i = 0; i < 6; i++){
-            for(int j = 0; j < 6; j++){
-                for(int k = 0; k < 6; k++){
-                    float currentScore;
-                    List<Command> cmds = new ArrayList<>();
-                    cmds.add(commands[i]);
-                    cmds.add(commands[j]);
-                    cmds.add(commands[k]);
-                    Scoring currScoring = new Scoring(cmds, gameState);
-                    currentScore = currScoring.calculate();
-                    if(currentScore > bestScore){
-                        bestScore = currentScore;
-                        bestCmds = currScoring;
-                    }
-                }
-            }
-        }
-        
-        if(bestCmds != null){
-            return bestCmds.commands.get(0);
-        }
+//        Command[] commands = new Command[6];
+//        commands[0] = Abilities.ACCELERATE;
+//        commands[1] = Abilities.BOOST;
+//        commands[2] = Abilities.TURN_LEFT;
+//        commands[3] = Abilities.TURN_RIGHT;
+//        commands[4] = Abilities.LIZARD;
+//        commands[5] = Abilities.FIX;
+//        Scoring bestCmds = null;
+//        float bestScore = Scoring.INVALID_COMMAND;
+//
+//        for(int i = 0; i < 6; i++){
+//            float currentScore;
+//            List<Command> cmds = new ArrayList<>();
+//            cmds.add(commands[i]);
+//            Scoring currScoring = new Scoring(cmds, gameState);
+//            currentScore = currScoring.calculate();
+//            if(currentScore > bestScore){
+//                bestScore = currentScore;
+//                bestCmds = currScoring;
+//            }
+//        }
+//
+//        for(int i = 0; i < 6; i++){
+//            for(int j = 0; j < 6; j++){
+//                float currentScore;
+//                List<Command> cmds = new ArrayList<>();
+//                cmds.add(commands[i]);
+//                cmds.add(commands[j]);
+//                Scoring currScoring = new Scoring(cmds, gameState);
+//                currentScore = currScoring.calculate();
+//                if(currentScore > bestScore){
+//                    bestScore = currentScore;
+//                    bestCmds = currScoring;
+//                }
+//            }
+//        }
+//
+//        for(int i = 0; i < 6; i++){
+//            for(int j = 0; j < 6; j++){
+//                for(int k = 0; k < 6; k++){
+//                    float currentScore;
+//                    List<Command> cmds = new ArrayList<>();
+//                    cmds.add(commands[i]);
+//                    cmds.add(commands[j]);
+//                    cmds.add(commands[k]);
+//                    Scoring currScoring = new Scoring(cmds, gameState);
+//                    currentScore = currScoring.calculate();
+//                    if(currentScore > bestScore){
+//                        bestScore = currentScore;
+//                        bestCmds = currScoring;
+//                    }
+//                }
+//            }
+//        }
+//
+//        if(bestCmds != null){
+//            return bestCmds.commands.get(0);
+//        }
 
         // Calculate obstacle score in list [LEFT, FRONT, RIGHT]
         
@@ -152,6 +197,6 @@ public class Bot {
             }
         }*/
 
-        return Abilities.ACCELERATE;
+        //return Abilities.ACCELERATE;
     }
 }

@@ -2,7 +2,9 @@ package za.co.entelect.challenge.utils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 
+import za.co.entelect.challenge.Bot;
 import za.co.entelect.challenge.command.Command;
 import za.co.entelect.challenge.enums.PowerUps;
 import za.co.entelect.challenge.enums.Terrain;
@@ -10,6 +12,7 @@ import za.co.entelect.challenge.entities.Lane;
 
 public class Supports {
     /* Mengecek apakah dua command adalah command yang setipe */
+
     public static boolean isCommandEqual(Command a, Command b){
         return a.render().equals(b.render());
     }
@@ -118,5 +121,10 @@ public class Supports {
 
     public static int getBoostedSpeed(int damage){
         return Math.min(15, getCurrentSpeedLimit(damage));
+    }
+
+    public static void TrackLog(Queue<LogState> Q){
+        LogState curLog = Q.remove();
+        //Bot.enemy.update(curLog);
     }
 }

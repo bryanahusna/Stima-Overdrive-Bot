@@ -1,4 +1,4 @@
-package za.co.entelect.challenge.entities;
+package za.co.entelect.challenge.globalentities;
 
 import za.co.entelect.challenge.enums.Terrain;
 

@@ -1,6 +1,6 @@
-package za.co.entelect.challenge.entities;
+package za.co.entelect.challenge.globalentities;
 
-import za.co.entelect.challenge.enums.Terrain;
+import za.co.entelect.challenge.entities.GameState;
 
 public class Map {
     // isi entire map disini
@@ -12,7 +12,7 @@ public class Map {
         map =  new Tile[x_size][y_size];
     }
 
-    public void Update(){
+    public void update(GameState curState){
         // Update setiap nemu view baru
     }
 
