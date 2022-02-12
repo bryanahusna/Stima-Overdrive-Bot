@@ -1,7 +1,9 @@
 package za.co.entelect.challenge.globalentities;
 
+import za.co.entelect.challenge.command.Command;
 import za.co.entelect.challenge.entities.GameState;
 import za.co.entelect.challenge.enums.Terrain;
+import za.co.entelect.challenge.utils.Abilities;
 import za.co.entelect.challenge.utils.LogState;
 import za.co.entelect.challenge.utils.Supports;
 
@@ -40,11 +42,45 @@ public class Player {
 
     public void update(GameState curState) {
         // update cuma dipake buat player
-
     }
-
     public void update(LogState state) {
         // update cuma dipake buat opponent
+    }
+
+    public Player clone(){
+        Player clone = new Player(this.id);
+        clone.id = this.id;
+        clone.pos_x = this.pos_x;
+        clone.pos_y = this.pos_y;
+        clone.speed = this.speed;
+        clone.damage = this.damage;
+        clone.boost = this.boost;
+        clone.oil = this.oil;
+        clone.tweet = this.tweet;
+        clone.lizard = this.lizard;
+        clone.emp = this.emp;
+        clone.nBoost = this.nBoost;
+        clone.score = this.score;
+        return clone;
+    }
+
+
+    public void changeSpeed(Command PlayerAction){
+        if(Supports.isCommandEqual(PlayerAction, Abilities.ACCELERATE)){
+            this.speed = Supports.getAcceleratedSpeed(this.speed, this.damage);
+        }
+        else if(Supports.isCommandEqual(PlayerAction, Abilities.DECELERATE)){
+            this.nBoost = 0;
+            this.speed = Supports.getDeceleratedSpeed(this.speed, false);
+        }
+        else if(Supports.isCommandEqual(PlayerAction, Abilities.BOOST)){
+            this.speed = Supports.getBoostedSpeed(this.damage);
+        }
+    }
+
+    public void changeLoc(Tile T){
+        this.pos_x = T.x;
+        this.pos_y = T.y;
     }
 
     public void getDrops(List<Tile> Path) {
