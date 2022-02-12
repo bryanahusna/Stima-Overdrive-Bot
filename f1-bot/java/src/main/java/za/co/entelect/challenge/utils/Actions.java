@@ -4,15 +4,16 @@ import za.co.entelect.challenge.command.Command;
 import za.co.entelect.challenge.entities.GameState;
 import za.co.entelect.challenge.enums.Terrain;
 import za.co.entelect.challenge.globalentities.GlobalState;
+import za.co.entelect.challenge.globalentities.Map;
 import za.co.entelect.challenge.globalentities.Player;
 import za.co.entelect.challenge.globalentities.Tile;
 
 import java.util.ArrayList;
 import java.util.List;
-// Masih dalam progress
-public class Tree {
-    public static GlobalState SimulateActions(Command PlayerAction, Command EnemyAction, GlobalState InitState){
-        GlobalState ret = InitState;
+
+public class Actions {
+    public static GlobalState simulateActions(Command PlayerAction, Command EnemyAction, GlobalState InitState){
+        GlobalState ret = InitState.clone();
         Player player = ret.player;
         Player enemy = ret.enemy;
         if(player.nBoost > 0){
@@ -32,35 +33,9 @@ public class Tree {
         List<Tile> EnemyPath = Supports.getPath(enemy.pos_x, enemy.pos_y, enemy.speed, enemy.damage, EnemyAction, ret);
         List<Tile> Cyber = new ArrayList<Tile>();
 
-        if(Supports.isCommandEqual(PlayerAction, Abilities.FIX)){
-            player.damage = Math.max(0, player.damage-2);
-        }
-        else if(Supports.isCommandEqual(PlayerAction, Abilities.BOOST)){
-            player.boost -= 1;
-            player.nBoost = 5;
-            player.score += 4;
-            player.damage = Math.max(0, player.damage-2);
-        }
-        else if(Supports.isCommandEqual(PlayerAction, Abilities.LIZARD)){
-            player.lizard -= 1;
-            player.score += 4;
-            player.damage = Math.max(0, player.damage-2);
-        }
-
-        if(Supports.isCommandEqual(EnemyAction, Abilities.FIX)){
-            enemy.damage = Math.max(0, enemy.damage-2);
-        }
-        else if(Supports.isCommandEqual(EnemyAction, Abilities.BOOST)){
-            enemy.boost -= 1;
-            enemy.nBoost = 5;
-            enemy.score += 4;
-            enemy.damage = Math.max(0, enemy.damage-2);
-        }
-        else if(Supports.isCommandEqual(EnemyAction, Abilities.LIZARD)){
-            enemy.lizard -= 1;
-            enemy.score += 4;
-            enemy.damage = Math.max(0, enemy.damage-2);
-        }
+        // for command that cause preliminary action
+        player.getFromAction(PlayerAction);
+        enemy.getFromAction(EnemyAction);
 
         if(PlayerPath.get(PlayerPath.size()-1).tile == Terrain.CYBERTRUCK){
             player.score -= 7;
@@ -105,7 +80,7 @@ public class Tree {
                         PlayerPath.remove(i);
                     }
                     if(!Supports.sameCoordinate(PlayerPath.get(i-1), xa-1, ya)){
-                        PlayerPath.add(InitState.map.getTile(xa-1, ya));
+                        PlayerPath.add(ret.map.getTile(xa-1, ya));
                     }
                     udah = true;
                     break;
@@ -126,17 +101,53 @@ public class Tree {
                         EnemyPath.remove(i);
                     }
                     if(!Supports.sameCoordinate(EnemyPath.get(i-1), xa-1, ya)){
-                        EnemyPath.add(InitState.map.getTile(xa-1, ya));
+                        EnemyPath.add(ret.map.getTile(xa-1, ya));
                     }
                     break;
                 }
             }
         }
+        // update position
+        player.changeLoc(PlayerPath.get(PlayerPath.size()-1));
+        player.changeLoc(EnemyPath.get(EnemyPath.size()-1));
+
         // resource gathering
+        player.getDrops(PlayerPath);
+        enemy.getDrops(EnemyPath);
 
+        // update speed
+        player.changeSpeed(PlayerAction);
+        enemy.changeSpeed(EnemyAction);
 
-
+        for(Tile cybertrucks: Cyber){
+            ret.map.map[cybertrucks.x][cybertrucks.y].eraseLayer();
+        }
         return ret;
     }
+
+    public static List<Command> validAction(GlobalState state){
+        List<Command> ret = new ArrayList<>();
+        if(state.player.speed > 0) {
+            ret.add(Abilities.DO_NOTHING);
+            ret.add(Abilities.DECELERATE);
+            if (state.player.pos_y != 1) {
+                ret.add(Abilities.TURN_LEFT);
+            }
+            if (state.player.pos_y != 4) {
+                ret.add(Abilities.TURN_RIGHT);
+            }
+            if(state.player.lizard>0){
+                ret.add(Abilities.LIZARD);
+            }
+        }
+        if(state.player.speed < Supports.getCurrentSpeedLimit(state.player.damage)){
+            ret.add(Abilities.ACCELERATE);
+        }
+        if(state.player.boost>0&&state.player.nBoost<=1){
+            ret.add(Abilities.BOOST);
+        }
+        return ret;
+    }
+
 
 }

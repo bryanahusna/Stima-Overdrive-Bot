@@ -1,7 +1,9 @@
 package za.co.entelect.challenge.globalentities;
 
+import za.co.entelect.challenge.command.Command;
 import za.co.entelect.challenge.entities.GameState;
 import za.co.entelect.challenge.enums.Terrain;
+import za.co.entelect.challenge.utils.Abilities;
 import za.co.entelect.challenge.utils.LogState;
 import za.co.entelect.challenge.utils.Supports;
 
@@ -40,9 +42,7 @@ public class Player {
 
     public void update(GameState curState) {
         // update cuma dipake buat player
-
     }
-
     public void update(LogState state) {
         // Update cuma dipake buat opponent
         if (state.prevState.enemy.pos_x >= state.prevState.player.pos_x) {
@@ -67,6 +67,42 @@ public class Player {
 
     }
 
+    public Player clone(){
+        Player clone = new Player(this.id);
+        clone.id = this.id;
+        clone.pos_x = this.pos_x;
+        clone.pos_y = this.pos_y;
+        clone.speed = this.speed;
+        clone.damage = this.damage;
+        clone.boost = this.boost;
+        clone.oil = this.oil;
+        clone.tweet = this.tweet;
+        clone.lizard = this.lizard;
+        clone.emp = this.emp;
+        clone.nBoost = this.nBoost;
+        clone.score = this.score;
+        return clone;
+    }
+
+
+    public void changeSpeed(Command PlayerAction){
+        if(Supports.isCommandEqual(PlayerAction, Abilities.ACCELERATE)){
+            this.speed = Supports.getAcceleratedSpeed(this.speed, this.damage);
+        }
+        else if(Supports.isCommandEqual(PlayerAction, Abilities.DECELERATE)){
+            this.nBoost = 0;
+            this.speed = Supports.getDeceleratedSpeed(this.speed, false, this.damage);
+        }
+        else if(Supports.isCommandEqual(PlayerAction, Abilities.BOOST)){
+            this.speed = Supports.getBoostedSpeed(this.damage);
+        }
+    }
+
+    public void changeLoc(Tile T){
+        this.pos_x = T.x;
+        this.pos_y = T.y;
+    }
+
     public void getDrops(List<Tile> Path) {
         // update powerup, score, speed, dan damage player berdasarkan Path
         for (Tile block : Path) {
@@ -74,16 +110,10 @@ public class Player {
                 continue;
             else if (block.tile == Terrain.MUD || block.tile == Terrain.OIL_SPILL) {
                 this.givePenalty(block);
-                this.speed = Math.min(
-                        Supports.getCurrentSpeedLimit(this.damage),
-                        Supports.getDeceleratedSpeed(this.speed, true)
-                );
+                this.speed = Supports.getDeceleratedSpeed(this.speed, true, this.damage);
             } else if (block.tile == Terrain.WALL) {
                 this.givePenalty(block);
-                this.speed = Math.min(
-                        Supports.getCurrentSpeedLimit(this.damage),
-                        Supports.getDeceleratedSpeed(this.speed, false)
-                );
+                this.speed = Supports.getDeceleratedSpeed(this.speed, false, this.damage);
             } else if (block.tile == Terrain.OIL_POWER) {
                 this.oil++;
                 this.score += 4;
@@ -107,16 +137,35 @@ public class Player {
         if (block.tile == Terrain.MUD) {
             this.score -= 3;
             this.damage += 1;
+            this.nBoost = 0;
         } else if (block.tile == Terrain.OIL_SPILL) {
             this.score -= 4;
             this.damage += 1;
+            this.nBoost = 0;
         } else if (block.tile == Terrain.WALL) {
             this.score -= 5;
             this.damage += 2;
+            this.nBoost = 0;
         } else if (block.tile == Terrain.CYBERTRUCK) {
             this.score -= 7;
             this.damage += 2;
+            this.nBoost = 0;
         }
 
+    }
+
+    public void getFromAction(Command PlayerAction){
+        if(Supports.isCommandEqual(PlayerAction, Abilities.FIX)){
+            this.damage = Math.max(0, this.damage-2);
+        }
+        else if(Supports.isCommandEqual(PlayerAction, Abilities.BOOST)){
+            this.boost -= 1;
+            this.nBoost = 5;
+            this.score += 4;
+        }
+        else if(Supports.isCommandEqual(PlayerAction, Abilities.LIZARD)){
+            this.lizard -= 1;
+            this.score += 4;
+        }
     }
 }

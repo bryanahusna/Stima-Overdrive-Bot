@@ -55,7 +55,7 @@ public class Supports {
         } else if (isCommandEqual(cmd, Abilities.ACCELERATE)) {
             v = getAcceleratedSpeed(v, damage);
         } else if (isCommandEqual(cmd, Abilities.DECELERATE)) {
-            v = getDeceleratedSpeed(v, false);
+            v = getDeceleratedSpeed(v, false, damage);
         } else if (isCommandEqual(cmd, Abilities.BOOST)) {
             v = getBoostedSpeed(damage);
         }
@@ -137,7 +137,7 @@ public class Supports {
         return Math.min(acceleratedSpeed, getCurrentSpeedLimit(damage));
     }
 
-    public static int getDeceleratedSpeed(int speed, boolean isMudOil) {
+    public static int getDeceleratedSpeed(int speed, boolean isMudOil, int damage) {
         int deceleratedSpeed;
         switch (speed) {
             case 15:
@@ -162,7 +162,7 @@ public class Supports {
             default:
                 deceleratedSpeed = 0;
         }
-        return deceleratedSpeed;
+        return Math.min(deceleratedSpeed, getCurrentSpeedLimit(damage));
     }
 
     public static int getBoostedSpeed(int damage) {
