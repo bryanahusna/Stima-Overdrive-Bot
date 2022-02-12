@@ -4,14 +4,15 @@ import za.co.entelect.challenge.command.Command;
 import za.co.entelect.challenge.entities.GameState;
 import za.co.entelect.challenge.enums.Terrain;
 import za.co.entelect.challenge.globalentities.GlobalState;
+import za.co.entelect.challenge.globalentities.Map;
 import za.co.entelect.challenge.globalentities.Player;
 import za.co.entelect.challenge.globalentities.Tile;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Tree {
-    public static GlobalState SimulateActions(Command PlayerAction, Command EnemyAction, GlobalState InitState){
+public class Actions {
+    public static GlobalState simulateActions(Command PlayerAction, Command EnemyAction, GlobalState InitState){
         GlobalState ret = InitState.clone();
         Player player = ret.player;
         Player enemy = ret.enemy;
@@ -124,6 +125,29 @@ public class Tree {
         return ret;
     }
 
+    public static List<Command> validAction(GlobalState state){
+        List<Command> ret = new ArrayList<>();
+        if(state.player.speed > 0) {
+            ret.add(Abilities.DO_NOTHING);
+            ret.add(Abilities.DECELERATE);
+            if (state.player.pos_y != 1) {
+                ret.add(Abilities.TURN_LEFT);
+            }
+            if (state.player.pos_y != 4) {
+                ret.add(Abilities.TURN_RIGHT);
+            }
+            if(state.player.lizard>0){
+                ret.add(Abilities.LIZARD);
+            }
+        }
+        if(state.player.speed < Supports.getCurrentSpeedLimit(state.player.damage)){
+            ret.add(Abilities.ACCELERATE);
+        }
+        if(state.player.boost>0&&state.player.nBoost<=1){
+            ret.add(Abilities.BOOST);
+        }
+        return ret;
+    }
 
 
 }

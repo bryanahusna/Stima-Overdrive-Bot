@@ -16,4 +16,7 @@ public class GlobalState {
         this.enemy = new Player(2);
         this.map = new Map();
     }
+    public Map getMap(){
+        return this.map.clone();
+    }
 }

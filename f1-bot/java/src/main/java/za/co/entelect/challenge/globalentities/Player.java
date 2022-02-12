@@ -71,7 +71,7 @@ public class Player {
         }
         else if(Supports.isCommandEqual(PlayerAction, Abilities.DECELERATE)){
             this.nBoost = 0;
-            this.speed = Supports.getDeceleratedSpeed(this.speed, false);
+            this.speed = Supports.getDeceleratedSpeed(this.speed, false, this.damage);
         }
         else if(Supports.isCommandEqual(PlayerAction, Abilities.BOOST)){
             this.speed = Supports.getBoostedSpeed(this.damage);
@@ -90,16 +90,10 @@ public class Player {
                 continue;
             else if (block.tile == Terrain.MUD || block.tile == Terrain.OIL_SPILL) {
                 this.givePenalty(block);
-                this.speed = Math.min(
-                        Supports.getCurrentSpeedLimit(this.damage),
-                        Supports.getDeceleratedSpeed(this.speed, true)
-                );
+                this.speed = Supports.getDeceleratedSpeed(this.speed, true, this.damage);
             } else if (block.tile == Terrain.WALL) {
                 this.givePenalty(block);
-                this.speed = Math.min(
-                        Supports.getCurrentSpeedLimit(this.damage),
-                        Supports.getDeceleratedSpeed(this.speed, false)
-                );
+                this.speed = Supports.getDeceleratedSpeed(this.speed, false, this.damage);
             } else if (block.tile == Terrain.OIL_POWER) {
                 this.oil++;
             } else if (block.tile == Terrain.BOOST) {

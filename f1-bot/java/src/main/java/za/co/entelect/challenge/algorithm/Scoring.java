@@ -111,7 +111,7 @@ public class Scoring {
             car.position.block += car.speed;
 
         } else if(Supports.isCommandEqual(cmd, Abilities.DECELERATE)){
-            car.speed = Supports.getDeceleratedSpeed(car.speed, false);
+            car.speed = Supports.getDeceleratedSpeed(car.speed, false, car.damage);
             car.position.block += car.speed;
         } else{
             car.position.block += car.speed;
@@ -148,10 +148,10 @@ public class Scoring {
         for(Terrain terrain : terrains){
             if(terrain == Terrain.MUD){
                 car.damage += 1;
-                car.speed = Supports.getDeceleratedSpeed(car.speed, true);
+                car.speed = Supports.getDeceleratedSpeed(car.speed, true, car.damage);
             } else if(terrain == Terrain.OIL_SPILL){
                 car.damage += 1;
-                car.speed = Supports.getDeceleratedSpeed(car.speed, true);
+                car.speed = Supports.getDeceleratedSpeed(car.speed, true, car.damage);
             } else if(terrain == Terrain.OIL_POWER){
                 newPowers.add(PowerUps.OIL);
             } else if(terrain == Terrain.BOOST){
