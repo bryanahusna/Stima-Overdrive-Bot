@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 // Masih dalam progress
 public class Tree {
-    public GlobalState SimulateActions(Command PlayerAction, Command EnemyAction, GlobalState InitState){
+    public static GlobalState SimulateActions(Command PlayerAction, Command EnemyAction, GlobalState InitState){
         GlobalState ret = InitState;
         Player player = ret.player;
         Player enemy = ret.enemy;

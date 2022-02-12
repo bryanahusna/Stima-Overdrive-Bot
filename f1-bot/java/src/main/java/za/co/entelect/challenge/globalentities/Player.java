@@ -46,6 +46,6 @@ public class Player {
     }
 
     public void getDrops(List<Tile> Path){
-        // update powerup, score, dan damage player berdasarkan Path
+        // update powerup, score, speed, dan damage player berdasarkan Path
     }
 }
