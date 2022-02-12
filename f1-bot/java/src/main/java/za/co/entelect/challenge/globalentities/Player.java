@@ -5,6 +5,8 @@ import za.co.entelect.challenge.entities.Car;
 import za.co.entelect.challenge.entities.GameState;
 import za.co.entelect.challenge.utils.LogState;
 
+import java.util.List;
+
 public class Player {
     public int id;
     public int pos_x;
@@ -40,5 +42,9 @@ public class Player {
     }
     public void update(LogState state){
         // update cuma dipake buat opponent
+    }
+
+    public void getDrops(List<Tile> Path){
+        // update powerup, score, dan damage player berdasarkan Path
     }
 }

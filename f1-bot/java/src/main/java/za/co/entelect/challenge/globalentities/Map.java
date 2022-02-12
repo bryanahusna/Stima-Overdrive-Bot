@@ -9,7 +9,13 @@ public class Map {
     private final int y_size = 4;
     public Tile[][] map;
     public Map(){
-        map =  new Tile[x_size][y_size];
+        this.map =  new Tile[x_size][y_size];
+        for(int i=0; i<x_size; i++){
+            for(int j=0; j<y_size; j++){
+                this.map[i][j] = new Tile(i, j);
+            }
+        }
+
     }
     public Tile getTile(int x, int y){
         return this.map[x][y];

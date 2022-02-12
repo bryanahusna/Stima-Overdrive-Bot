@@ -34,7 +34,12 @@ public class Supports {
         }
         return blocks;
     }
-
+    public static boolean isTileEqual(Tile a, Tile b){
+        return (a.x==b.x&&a.y==b.y);
+    }
+    public static boolean sameCoordinate(Tile a, int x, int y){
+        return (a.x==x&&a.y==y);
+    }
     public static List<Tile> getPath(int x, int y, int v, int damage, Command cmd, GlobalState state){
         List<Tile> ret = new ArrayList<Tile>();
         ret.add(state.map.getTile(x, y));
