@@ -4,6 +4,7 @@ import za.co.entelect.challenge.command.Command;
 import za.co.entelect.challenge.entities.GameState;
 import za.co.entelect.challenge.enums.Terrain;
 import za.co.entelect.challenge.utils.Abilities;
+import za.co.entelect.challenge.utils.Actions;
 import za.co.entelect.challenge.utils.LogState;
 import za.co.entelect.challenge.utils.Supports;
 
@@ -43,6 +44,7 @@ public class Player {
     public void update(GameState curState) {
         // update cuma dipake buat player
     }
+
     public void update(LogState state) {
         // Update cuma dipake buat opponent
         if (state.prevState.enemy.pos_x >= state.prevState.player.pos_x) {
@@ -64,10 +66,27 @@ public class Player {
         state.prevState.enemy.damage = damage; // Update damage
 
         /* Hitung COMMAND lawan */
+        Command cmd = state.calcOpponentCommand();
+        if (cmd == null) {
+            state.currentState.enemy = state.prevState.enemy;
+        }
 
+        // ????
+//        GlobalState predOppNS = Actions.simulateActions(
+//                Abilities.convertOffensive(state.action),
+//                cmd, state.prevState
+//        );
+//        Player opp = state.currentState.enemy;
+//        opp = predOppNS.enemy;
+//        opp.lizard = Math.max(opp.lizard, 0);
+//        opp.boost = Math.max(opp.boost, 0);
+//
+//        if (state.prevState.enemy.pos_x < state.prevState.player.pos_x) {
+//            predOppNS.map.updateNewRound(); // Gabisa dipass??
+//        }
     }
 
-    public Player clone(){
+    public Player clone() {
         Player clone = new Player(this.id);
         clone.id = this.id;
         clone.pos_x = this.pos_x;
@@ -85,20 +104,18 @@ public class Player {
     }
 
 
-    public void changeSpeed(Command PlayerAction){
-        if(Supports.isCommandEqual(PlayerAction, Abilities.ACCELERATE)){
+    public void changeSpeed(Command PlayerAction) {
+        if (Supports.isCommandEqual(PlayerAction, Abilities.ACCELERATE)) {
             this.speed = Supports.getAcceleratedSpeed(this.speed, this.damage);
-        }
-        else if(Supports.isCommandEqual(PlayerAction, Abilities.DECELERATE)){
+        } else if (Supports.isCommandEqual(PlayerAction, Abilities.DECELERATE)) {
             this.nBoost = 0;
             this.speed = Supports.getDeceleratedSpeed(this.speed, false, this.damage);
-        }
-        else if(Supports.isCommandEqual(PlayerAction, Abilities.BOOST)){
+        } else if (Supports.isCommandEqual(PlayerAction, Abilities.BOOST)) {
             this.speed = Supports.getBoostedSpeed(this.damage);
         }
     }
 
-    public void changeLoc(Tile T){
+    public void changeLoc(Tile T) {
         this.pos_x = T.x;
         this.pos_y = T.y;
     }
@@ -154,16 +171,14 @@ public class Player {
 
     }
 
-    public void getFromAction(Command PlayerAction){
-        if(Supports.isCommandEqual(PlayerAction, Abilities.FIX)){
-            this.damage = Math.max(0, this.damage-2);
-        }
-        else if(Supports.isCommandEqual(PlayerAction, Abilities.BOOST)){
+    public void getFromAction(Command PlayerAction) {
+        if (Supports.isCommandEqual(PlayerAction, Abilities.FIX)) {
+            this.damage = Math.max(0, this.damage - 2);
+        } else if (Supports.isCommandEqual(PlayerAction, Abilities.BOOST)) {
             this.boost -= 1;
             this.nBoost = 5;
             this.score += 4;
-        }
-        else if(Supports.isCommandEqual(PlayerAction, Abilities.LIZARD)){
+        } else if (Supports.isCommandEqual(PlayerAction, Abilities.LIZARD)) {
             this.lizard -= 1;
             this.score += 4;
         }
