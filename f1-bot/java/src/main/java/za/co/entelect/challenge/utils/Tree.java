@@ -9,10 +9,10 @@ import za.co.entelect.challenge.globalentities.Tile;
 
 import java.util.ArrayList;
 import java.util.List;
-// Masih dalam progress
+
 public class Tree {
     public static GlobalState SimulateActions(Command PlayerAction, Command EnemyAction, GlobalState InitState){
-        GlobalState ret = InitState;
+        GlobalState ret = InitState.clone();
         Player player = ret.player;
         Player enemy = ret.enemy;
         if(player.nBoost > 0){
@@ -39,12 +39,10 @@ public class Tree {
             player.boost -= 1;
             player.nBoost = 5;
             player.score += 4;
-            player.damage = Math.max(0, player.damage-2);
         }
         else if(Supports.isCommandEqual(PlayerAction, Abilities.LIZARD)){
             player.lizard -= 1;
             player.score += 4;
-            player.damage = Math.max(0, player.damage-2);
         }
 
         if(Supports.isCommandEqual(EnemyAction, Abilities.FIX)){
@@ -54,12 +52,10 @@ public class Tree {
             enemy.boost -= 1;
             enemy.nBoost = 5;
             enemy.score += 4;
-            enemy.damage = Math.max(0, enemy.damage-2);
         }
         else if(Supports.isCommandEqual(EnemyAction, Abilities.LIZARD)){
             enemy.lizard -= 1;
             enemy.score += 4;
-            enemy.damage = Math.max(0, enemy.damage-2);
         }
 
         if(PlayerPath.get(PlayerPath.size()-1).tile == Terrain.CYBERTRUCK){
@@ -105,7 +101,7 @@ public class Tree {
                         PlayerPath.remove(i);
                     }
                     if(!Supports.sameCoordinate(PlayerPath.get(i-1), xa-1, ya)){
-                        PlayerPath.add(InitState.map.getTile(xa-1, ya));
+                        PlayerPath.add(ret.map.getTile(xa-1, ya));
                     }
                     udah = true;
                     break;
@@ -126,16 +122,27 @@ public class Tree {
                         EnemyPath.remove(i);
                     }
                     if(!Supports.sameCoordinate(EnemyPath.get(i-1), xa-1, ya)){
-                        EnemyPath.add(InitState.map.getTile(xa-1, ya));
+                        EnemyPath.add(ret.map.getTile(xa-1, ya));
                     }
                     break;
                 }
             }
         }
+        // update position
+        player.changeLoc(PlayerPath.get(PlayerPath.size()-1));
+        player.changeLoc(EnemyPath.get(EnemyPath.size()-1));
+
         // resource gathering
+        player.getDrops(PlayerPath);
+        enemy.getDrops(EnemyPath);
 
+        // update speed
+        player.changeSpeed(PlayerAction);
+        enemy.changeSpeed(EnemyAction);
 
-
+        for(Tile cybertrucks: Cyber){
+            ret.map.map[cybertrucks.x][cybertrucks.y].eraseLayer();
+        }
         return ret;
     }
 

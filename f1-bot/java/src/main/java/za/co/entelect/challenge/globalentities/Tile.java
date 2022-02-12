@@ -38,6 +38,10 @@ public class Tile {
         this.layer = layer;
     }
 
+    public void eraseLayer(){
+        this.layer = this.tile;
+    }
+
     // equals true jika tile dan layernya sama
     @Override
     public boolean equals(Object o){
