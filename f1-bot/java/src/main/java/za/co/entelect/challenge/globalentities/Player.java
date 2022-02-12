@@ -44,7 +44,27 @@ public class Player {
     }
 
     public void update(LogState state) {
-        // update cuma dipake buat opponent
+        // Update cuma dipake buat opponent
+        if (state.prevState.enemy.pos_x >= state.prevState.player.pos_x) {
+            // CLEAN MAP
+        }
+
+        /* Cek kalo misalnya kita ketinggalan / salah prediksi lawan.
+         *  Kalo offset / speed akhir mereka lebih daripada yang seharusnya,
+         *  Kurangi damage sampai logic valid
+         * */
+        int offsetX = state.currentState.enemy.pos_x - state.prevState.enemy.pos_x
+                + Math.abs(state.prevState.enemy.pos_y - state.currentState.enemy.pos_y);
+        int oppSpeed = state.currentState.enemy.speed;
+        int damage = Math.max(state.prevState.enemy.damage, 0);
+        while (Math.max(offsetX, oppSpeed) > Supports.getBoostedSpeed(damage)
+                && damage > 0) {
+            damage--;
+        }
+        state.prevState.enemy.damage = damage; // Update damage
+
+        /* Hitung COMMAND lawan */
+
     }
 
     public void getDrops(List<Tile> Path) {
@@ -66,14 +86,19 @@ public class Player {
                 );
             } else if (block.tile == Terrain.OIL_POWER) {
                 this.oil++;
+                this.score += 4;
             } else if (block.tile == Terrain.BOOST) {
                 this.boost++;
+                this.score += 4;
             } else if (block.tile == Terrain.LIZARD) {
                 this.lizard++;
+                this.score += 4;
             } else if (block.tile == Terrain.TWEET) {
                 this.tweet++;
+                this.score += 4;
             } else if (block.tile == Terrain.EMP) {
                 this.emp++;
+                this.score += 4;
             }
         }
     }

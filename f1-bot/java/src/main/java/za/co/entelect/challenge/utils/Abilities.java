@@ -1,7 +1,6 @@
 package za.co.entelect.challenge.utils;
 
 import za.co.entelect.challenge.command.*;
-import za.co.entelect.challenge.entities.Car;
 
 public class Abilities {
     // NORMAL COMMANDS
@@ -25,36 +24,12 @@ public class Abilities {
 
     // ENEMY READING ABILITIES
     // ENEMY STATES
-    public static Boolean isEnemyInFront(Car myCar, Car opponent) {
-        return (opponent.position.block > myCar.position.block);
-    }
-
-    public static Boolean isEnemyBehind(Car myCar, Car opponent) {
-        return (opponent.position.block < myCar.position.block);
-    }
-
-    public static Boolean isEnemySameLane(Car myCar, Car opponent) {
-        return (opponent.position.lane == myCar.position.lane);
-    }
-
-    public static Command followEnemy(Car myCar, Car opponent) {
-        int delta = opponent.position.lane - myCar.position.lane;
-        if (delta < 0) {
-            return Abilities.TURN_LEFT;
-        } else if (delta > 0) {
-            return Abilities.TURN_RIGHT;
+    public static Command convertOffensive(Command cmd) {
+        if (cmd instanceof OilCommand
+                || cmd instanceof TweetCommand
+                || cmd instanceof EmpCommand) {
+            return DO_NOTHING;
         }
-        return Abilities.EMP;
-    }
-
-    public static Boolean isAbleToSeeEnemy(Car myCar, Car opponent) {
-        return (Math.abs(myCar.position.block - opponent.position.block) < 20);
-    }
-
-    public static Command avoidEnemy(int leftScore, int rightScore) {
-        if (rightScore <= leftScore) {
-            return Abilities.TURN_RIGHT;
-        }
-        return Abilities.TURN_LEFT;
+        return cmd;
     }
 }
