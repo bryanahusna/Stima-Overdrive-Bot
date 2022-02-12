@@ -40,6 +40,7 @@ public class Player {
         // update cuma dipake buat player
 
     }
+
     public void update(LogState state){
         // update cuma dipake buat opponent
     }
