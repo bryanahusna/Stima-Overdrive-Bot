@@ -1,6 +1,5 @@
 package za.co.entelect.challenge.globalentities;
 
-
 public class GlobalState {
     public Player player;
     public Player enemy;

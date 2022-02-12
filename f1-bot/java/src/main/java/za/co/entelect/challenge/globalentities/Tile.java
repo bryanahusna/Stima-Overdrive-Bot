@@ -8,12 +8,14 @@ public class Tile {
     public int y;
     public Terrain tile; // original tile
     public Terrain layer; // atasan tile
-    public Tile(int x, int y){
+
+    public Tile(int x, int y) {
         this.x = x;
         this.y = y;
         tile = Terrain.EMPTY;
         layer = Terrain.EMPTY;
     }
+
     public void set(Terrain tile, Terrain layer) {
         // setter
     }

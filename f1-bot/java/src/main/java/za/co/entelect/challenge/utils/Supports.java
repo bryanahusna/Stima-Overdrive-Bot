@@ -1,21 +1,19 @@
 package za.co.entelect.challenge.utils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Queue;
-
-import za.co.entelect.challenge.Bot;
 import za.co.entelect.challenge.command.Command;
+import za.co.entelect.challenge.entities.Lane;
 import za.co.entelect.challenge.enums.PowerUps;
 import za.co.entelect.challenge.enums.Terrain;
-import za.co.entelect.challenge.entities.Lane;
 import za.co.entelect.challenge.globalentities.GlobalState;
 import za.co.entelect.challenge.globalentities.Tile;
 
-public class Supports {
-    /* Mengecek apakah dua command adalah command yang setipe */
+import java.util.ArrayList;
+import java.util.List;
 
-    public static boolean isCommandEqual(Command a, Command b){
+public class Supports {
+
+    /* Mengecek apakah dua command adalah command yang setipe */
+    public static boolean isCommandEqual(Command a, Command b) {
         return a.render().equals(b.render());
     }
 
@@ -34,49 +32,46 @@ public class Supports {
         }
         return blocks;
     }
-    public static boolean isTileEqual(Tile a, Tile b){
-        return (a.x==b.x&&a.y==b.y);
+
+    public static boolean isTileEqual(Tile a, Tile b) {
+        return (a.x == b.x && a.y == b.y);
     }
-    public static boolean sameCoordinate(Tile a, int x, int y){
-        return (a.x==x&&a.y==y);
+
+    public static boolean sameCoordinate(Tile a, int x, int y) {
+        return (a.x == x && a.y == y);
     }
-    public static List<Tile> getPath(int x, int y, int v, int damage, Command cmd, GlobalState state){
+
+    public static List<Tile> getPath(int x, int y, int v, int damage, Command cmd, GlobalState state) {
         List<Tile> ret = new ArrayList<Tile>();
         ret.add(state.map.getTile(x, y));
         int dx = 0;
         int dy = 0;
-        if(isCommandEqual(cmd, Abilities.TURN_LEFT)){
+        if (isCommandEqual(cmd, Abilities.TURN_LEFT)) {
             dy -= 1;
             dx -= 1;
-        }
-        else if(isCommandEqual(cmd, Abilities.TURN_RIGHT)){
+        } else if (isCommandEqual(cmd, Abilities.TURN_RIGHT)) {
             dy += 1;
             dx -= 1;
-        }
-        else if(isCommandEqual(cmd, Abilities.ACCELERATE)){
+        } else if (isCommandEqual(cmd, Abilities.ACCELERATE)) {
             v = getAcceleratedSpeed(v, damage);
-        }
-        else if(isCommandEqual(cmd, Abilities.DECELERATE)){
+        } else if (isCommandEqual(cmd, Abilities.DECELERATE)) {
             v = getDeceleratedSpeed(v, false);
-        }
-        else if(isCommandEqual(cmd, Abilities.BOOST)){
+        } else if (isCommandEqual(cmd, Abilities.BOOST)) {
             v = getBoostedSpeed(damage);
         }
-        if(isCommandEqual(cmd, Abilities.FIX)){
+        if (isCommandEqual(cmd, Abilities.FIX)) {
             return ret;
-        }
-        else if(isCommandEqual(cmd, Abilities.LIZARD)){
-            ret.add(state.map.getTile(x+dx+v, y));
+        } else if (isCommandEqual(cmd, Abilities.LIZARD)) {
+            ret.add(state.map.getTile(x + dx + v, y));
             return ret;
-        }
-        else{
+        } else {
             y += dy;
-            if(dy!=0){
+            if (dy != 0) {
                 ret.add(state.map.getTile(x, y));
             }
-            for(int i = x+1; i<=x+dx+v; i++){
+            for (int i = x + 1; i <= x + dx + v; i++) {
                 ret.add(state.map.getTile(i, y));
-                if(state.map.getTile(i, y).layer==Terrain.CYBERTRUCK){
+                if (state.map.getTile(i, y).layer == Terrain.CYBERTRUCK) {
                     break;
                 }
             }
@@ -136,13 +131,13 @@ public class Supports {
                 acceleratedSpeed = 8;
                 break;
             default:
-                acceleratedSpeed =  9;
+                acceleratedSpeed = 9;
                 break;
         }
         return Math.min(acceleratedSpeed, getCurrentSpeedLimit(damage));
     }
 
-    public static int getDeceleratedSpeed(int speed, boolean isMudOil){
+    public static int getDeceleratedSpeed(int speed, boolean isMudOil) {
         int deceleratedSpeed;
         switch (speed) {
             case 15:
@@ -158,9 +153,9 @@ public class Supports {
                 deceleratedSpeed = 3;
                 break;
             case 3:
-                if(isMudOil){
+                if (isMudOil) {
                     deceleratedSpeed = 3;
-                } else{
+                } else {
                     deceleratedSpeed = 0;
                 }
                 break;
@@ -170,7 +165,7 @@ public class Supports {
         return deceleratedSpeed;
     }
 
-    public static int getBoostedSpeed(int damage){
+    public static int getBoostedSpeed(int damage) {
         return Math.min(15, getCurrentSpeedLimit(damage));
     }
 
