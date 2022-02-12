@@ -118,16 +118,35 @@ public class Player {
         if (block.tile == Terrain.MUD) {
             this.score -= 3;
             this.damage += 1;
+            this.nBoost = 0;
         } else if (block.tile == Terrain.OIL_SPILL) {
             this.score -= 4;
             this.damage += 1;
+            this.nBoost = 0;
         } else if (block.tile == Terrain.WALL) {
             this.score -= 5;
             this.damage += 2;
+            this.nBoost = 0;
         } else if (block.tile == Terrain.CYBERTRUCK) {
             this.score -= 7;
             this.damage += 2;
+            this.nBoost = 0;
         }
 
+    }
+
+    public void getFromAction(Command PlayerAction){
+        if(Supports.isCommandEqual(PlayerAction, Abilities.FIX)){
+            this.damage = Math.max(0, this.damage-2);
+        }
+        else if(Supports.isCommandEqual(PlayerAction, Abilities.BOOST)){
+            this.boost -= 1;
+            this.nBoost = 5;
+            this.score += 4;
+        }
+        else if(Supports.isCommandEqual(PlayerAction, Abilities.LIZARD)){
+            this.lizard -= 1;
+            this.score += 4;
+        }
     }
 }

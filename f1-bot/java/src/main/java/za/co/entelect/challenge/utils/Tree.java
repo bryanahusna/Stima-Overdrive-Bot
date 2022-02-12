@@ -32,31 +32,9 @@ public class Tree {
         List<Tile> EnemyPath = Supports.getPath(enemy.pos_x, enemy.pos_y, enemy.speed, enemy.damage, EnemyAction, ret);
         List<Tile> Cyber = new ArrayList<Tile>();
 
-        if(Supports.isCommandEqual(PlayerAction, Abilities.FIX)){
-            player.damage = Math.max(0, player.damage-2);
-        }
-        else if(Supports.isCommandEqual(PlayerAction, Abilities.BOOST)){
-            player.boost -= 1;
-            player.nBoost = 5;
-            player.score += 4;
-        }
-        else if(Supports.isCommandEqual(PlayerAction, Abilities.LIZARD)){
-            player.lizard -= 1;
-            player.score += 4;
-        }
-
-        if(Supports.isCommandEqual(EnemyAction, Abilities.FIX)){
-            enemy.damage = Math.max(0, enemy.damage-2);
-        }
-        else if(Supports.isCommandEqual(EnemyAction, Abilities.BOOST)){
-            enemy.boost -= 1;
-            enemy.nBoost = 5;
-            enemy.score += 4;
-        }
-        else if(Supports.isCommandEqual(EnemyAction, Abilities.LIZARD)){
-            enemy.lizard -= 1;
-            enemy.score += 4;
-        }
+        // for command that cause preliminary action
+        player.getFromAction(PlayerAction);
+        enemy.getFromAction(EnemyAction);
 
         if(PlayerPath.get(PlayerPath.size()-1).tile == Terrain.CYBERTRUCK){
             player.score -= 7;
@@ -145,5 +123,7 @@ public class Tree {
         }
         return ret;
     }
+
+
 
 }
