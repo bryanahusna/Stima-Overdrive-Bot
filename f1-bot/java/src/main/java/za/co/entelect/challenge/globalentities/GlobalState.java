@@ -1,6 +1,5 @@
 package za.co.entelect.challenge.globalentities;
 
-
 public class GlobalState {
     public GlobalState clone(){
         GlobalState clone = new GlobalState();

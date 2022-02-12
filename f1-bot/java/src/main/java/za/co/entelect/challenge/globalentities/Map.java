@@ -65,5 +65,6 @@ public class Map {
                 this.map[l.position.block - 1][l.position.lane - 1] = temp;
             }
         }
+        this.nxeff = lanes.get(0)[lanes.get(0).length - 1].position.block;
     }
 }
