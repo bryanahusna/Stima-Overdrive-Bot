@@ -34,13 +34,13 @@ public class Bot {
     }
 
     public void takeRound(GameState gameState, Command command){
-        gameState.cybertruckLaneToTerrain();
+        // gameState.cybertruckLaneToTerrain();
         GlobalState prevState = this.globalState;
         this.gameState = gameState;
         this.myCar = gameState.player;
         this.opponent = gameState.opponent;
         this.currentSpeedLimit = Supports.getCurrentSpeedLimit(gameState.player.damage);
-        this.globalState.map.update(gameState);
+        this.globalState.map.updateNewRound(gameState);
         this.globalState.player.update(gameState);
         if(command != null){
             this.log.add(new LogState(prevState, this.globalState, command));
