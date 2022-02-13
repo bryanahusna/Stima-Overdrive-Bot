@@ -2,6 +2,7 @@ package za.co.entelect.challenge.globalentities;
 
 import za.co.entelect.challenge.command.Command;
 import za.co.entelect.challenge.entities.GameState;
+import za.co.entelect.challenge.enums.PowerUps;
 import za.co.entelect.challenge.enums.Terrain;
 import za.co.entelect.challenge.utils.Abilities;
 import za.co.entelect.challenge.utils.Actions;
@@ -23,6 +24,8 @@ public class Player {
     public int emp;
     public int nBoost; // if boost doesnt activate, dia 0
     public int score;
+    public int cyber_x;
+    public int cyber_y;
 
     public Player(int id) {
         // id 1 means player
@@ -39,10 +42,38 @@ public class Player {
         this.emp = 0;
         this.nBoost = 0;
         this.score = 0;
+        this.cyber_x = 0;
+        this.cyber_y = 0;
     }
 
     public void update(GameState curState) {
         // update cuma dipake buat player
+        this.pos_x = curState.player.position.block;
+        this.pos_y = curState.player.position.lane;
+        this.speed = curState.player.speed;
+        this.damage = curState.player.damage;
+        this.boost = 0;
+        this.emp = 0;
+        this.lizard = 0;
+        this.tweet = 0;
+        this.oil = 0;
+        for(PowerUps p: curState.player.powerups){
+            if(p==PowerUps.BOOST){
+                this.boost++;
+            }
+            else if(p==PowerUps.EMP){
+                this.emp++;
+            }
+            else if(p==PowerUps.LIZARD){
+                this.lizard++;
+            }
+            else if(p==PowerUps.OIL){
+                this.oil++;
+            }
+            else if(p==PowerUps.TWEET){
+                this.tweet++;
+            }
+        }
     }
 
     public void update(LogState state) {
@@ -108,10 +139,15 @@ public class Player {
         clone.emp = this.emp;
         clone.nBoost = this.nBoost;
         clone.score = this.score;
+        clone.cyber_x = this.cyber_y;
+        clone.cyber_y = this.cyber_y;
         return clone;
     }
 
-
+    public void changeCyberTruck(int x, int y){
+        this.cyber_x = x;
+        this.cyber_y = y;
+    }
     public void changeSpeed(Command PlayerAction) {
         if (Supports.isCommandEqual(PlayerAction, Abilities.ACCELERATE)) {
             this.speed = Supports.getAcceleratedSpeed(this.speed, this.damage);

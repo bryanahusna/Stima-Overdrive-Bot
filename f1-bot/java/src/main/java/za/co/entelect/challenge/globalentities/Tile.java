@@ -38,11 +38,8 @@ public class Tile {
         this.layer = layer;
     }
 
-    public void eraseLayer(){
-        this.layer = this.tile;
-    }
     public boolean isBad(){
-        if(this.layer==Terrain.CYBERTRUCK||this.layer==Terrain.OIL_SPILL){
+        if(this.layer==Terrain.CYBERTRUCK){
             return true;
         }
         return this.tile==Terrain.MUD||this.tile==Terrain.WALL||this.tile==Terrain.OIL_SPILL;

@@ -3,6 +3,7 @@ package za.co.entelect.challenge.algorithm;
 
 import za.co.entelect.challenge.command.Command;
 import za.co.entelect.challenge.globalentities.GlobalState;
+import za.co.entelect.challenge.utils.Abilities;
 import za.co.entelect.challenge.utils.Actions;
 
 import java.util.ArrayList;
@@ -26,16 +27,21 @@ public class Search {
 
     private Queue<Node> q;
 
-    public Search(GlobalState state, int depth) {
+    public Search(GlobalState state, boolean OpponentWise) {
         q = new LinkedList<>();
         q.add(new Node(state));
         List<Node> Candidates = new LinkedList<>();
         while (!q.isEmpty()) {
             Node p = q.remove();
             for (Command cmd : p.Actions) {
-                p.State = Actions.simulateActions(cmd, Actions.predictAction(p.State, 4), p.State);
+                if(!OpponentWise){
+                    p.State = Actions.simulateActions(cmd, Actions.predictAction(p.State), p.State);
+                }
+                else{
+                    p.State = Actions.simulateActions(cmd, Abilities.ACCELERATE, p.State);
+                }
             }
-            if (p.State.map.nxeff < p.State.player.pos_x || p.Actions.size() == depth) {
+            if (p.State.map.nxeff < p.State.player.pos_x || p.Actions.size() == 4) {
                 Candidates.add(p);
                 continue;
             }

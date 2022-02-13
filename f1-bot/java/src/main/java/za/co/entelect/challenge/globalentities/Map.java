@@ -45,8 +45,9 @@ public class Map {
         return m;
     }
 
-    public void setTile(int x, int y, Tile t){
-        this.map[x - 1][y - 1] = t.clone();
+    public void setTile(int x, int y, Terrain t){
+        // hanya digunakan selain cybertruck
+        this.map[x - 1][y - 1].tile = t;
     }
 
     public Tile getTile(int x, int y){

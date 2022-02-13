@@ -5,6 +5,7 @@ import za.co.entelect.challenge.algorithm.Search;
 import za.co.entelect.challenge.command.Command;
 import za.co.entelect.challenge.entities.Car;
 import za.co.entelect.challenge.entities.GameState;
+import za.co.entelect.challenge.enums.Terrain;
 import za.co.entelect.challenge.globalentities.GlobalState;
 import za.co.entelect.challenge.utils.Abilities;
 import za.co.entelect.challenge.utils.Actions;
@@ -28,9 +29,10 @@ public class Bot {
     public Car myCar;
     public int currentSpeedLimit;
 
+
     public Bot() {
         this.globalState = new GlobalState();
-        this.log = new LinkedList<LogState>();
+        this.log = new LinkedList<>();
     }
 
     public void takeRound(GameState gameState, Command command) {
@@ -56,6 +58,7 @@ public class Bot {
         }
     }
 
+
     public void run() {
         Scanner sc = new Scanner(System.in);
         Gson gson = new Gson();
@@ -69,16 +72,13 @@ public class Bot {
 
                 GameState gameState = gson.fromJson(state, GameState.class);
                 takeRound(gameState, prevCommand);
-                //TODO:
-                // place cybertruck berdasarkan prevcommand di sini
-                Search Candidates = new Search(this.globalState, 4);
+                Search Candidates = new Search(this.globalState,false);
                 Command command = Candidates.bestActions.get(0);
                 if (Supports.isCommandEqual(Candidates.bestActions.get(0), Abilities.DO_NOTHING)) {
                     Candidates.bestActions.set(0, Actions.bestAttack(Candidates.bestActions, this.globalState));
                     command = Candidates.bestActions.get(0);
                     if (Supports.isCommandEqual(command, Abilities.OIL)) {
-                        //TODO:
-                        // place Oil di sini
+                        this.globalState.map.setTile(myCar.position.block, myCar.position.lane, Terrain.OIL_SPILL);
                     }
                 }
                 System.out.println(String.format("C;%d;%s", roundNumber, command.render()));

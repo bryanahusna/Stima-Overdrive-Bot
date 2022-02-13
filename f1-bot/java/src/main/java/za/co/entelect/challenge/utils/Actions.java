@@ -1,5 +1,6 @@
 package za.co.entelect.challenge.utils;
 
+import za.co.entelect.challenge.algorithm.Search;
 import za.co.entelect.challenge.command.Command;
 import za.co.entelect.challenge.enums.Terrain;
 import za.co.entelect.challenge.globalentities.GlobalState;
@@ -43,7 +44,7 @@ public class Actions {
                 ret
         );
 
-        List<Tile> Cyber = new ArrayList<Tile>();
+        List<Tile> Cyber = new ArrayList<>();
 
         // for command that cause preliminary effect
         player.getFromAction(PlayerAction);
@@ -132,7 +133,7 @@ public class Actions {
         enemy.changeSpeed(EnemyAction);
 
         for (Tile cybertrucks : Cyber) {
-            ret.map.map[cybertrucks.x][cybertrucks.y].eraseLayer();
+            ret.map.map[cybertrucks.x][cybertrucks.y].deleteCybertruck();
         }
         return ret;
     }
@@ -161,8 +162,8 @@ public class Actions {
         return ret;
     }
 
-    public static Command predictAction(GlobalState state, int maxSearchDepth) {
-        if (maxSearchDepth == 0 || state.enemy.pos_x >= state.map.nxeff) {
+    public static Command predictAction(GlobalState state) {
+        if (state.enemy.pos_x >= state.map.nxeff) {
             return Abilities.ACCELERATE;
         }
 
@@ -172,16 +173,15 @@ public class Actions {
             return Abilities.DO_NOTHING;
         }
 
-        // Todo:
-        return Abilities.ACCELERATE;
+        return (new Search(state.switch_(),true)).bestActions.get(0);
     }
 
     public static Command bestAttack(List<Command> Commands, GlobalState curState) {
         // offensive move
-        GlobalState state1 = Actions.simulateActions(Commands.get(0), Actions.predictAction(curState, 4), curState);
+        GlobalState state1 = Actions.simulateActions(Commands.get(0), Actions.predictAction(curState), curState);
         GlobalState state2 = null;
         if (Commands.size() > 2) {
-            state2 = Actions.simulateActions(Commands.get(1), Actions.predictAction(state1, 4), state1);
+            state2 = Actions.simulateActions(Commands.get(1), Actions.predictAction(state1), state1);
         }
         int x = curState.player.pos_x;
         int x1 = curState.enemy.pos_x;
@@ -206,15 +206,22 @@ public class Actions {
         } else if (curState.player.tweet > 0) {
             if (x > x1 && state2 != null) {
                 // kalau abis round ini prediksinya FIX, ga usah simpen cybertruck
-                if (!Supports.isCommandEqual(Actions.predictAction(state1, 4), Abilities.FIX)) {
+                if (!Supports.isCommandEqual(Actions.predictAction(state1), Abilities.FIX)) {
                     // simpen agak jauh dari lawan, biar kasus kalau abs(x-x1)=1 ga terjadi
                     // hati-hati juga, bisa jadi lawan nge-EMP kita pas placing cybertruck
-                    int cyber_x = state1.enemy.pos_x + 3;
+                    int cyber_x = state1.enemy.pos_x + 2;
                     int cyber_y = state2.enemy.pos_y;
                     if (Math.abs(y - y1) <= 1 && cyber_x == x && cyber_y == y) {
                         cyber_x--;
                     }
                     if (cyber_x < state1.player.pos_x) {
+                        int prevCyber_x = curState.player.cyber_x;
+                        int prevCyber_y = curState.player.cyber_y;
+                        if(prevCyber_x!=0){
+                            curState.map.getTile(prevCyber_x, prevCyber_y).deleteCybertruck();
+                        }
+                        curState.map.getTile(cyber_x, cyber_y).setCybertruck();
+                        curState.player.changeCyberTruck(cyber_x, cyber_y);
                         return Abilities.TWEET(cyber_y, cyber_x);
                     }
                 }
