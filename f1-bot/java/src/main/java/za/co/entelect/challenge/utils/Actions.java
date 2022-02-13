@@ -166,4 +166,71 @@ public class Actions {
         // pred opp
         return Abilities.ACCELERATE;
     }
+
+    public static Command bestAttack(List<Command> Commands, GlobalState curState){
+        // offensive move
+        GlobalState state1 = Actions.simulateActions(Commands.get(0), Actions.predictAction(curState), curState);
+        GlobalState state2 = null;
+        if(Commands.size()>2){
+            state2 = Actions.simulateActions(Commands.get(1), Actions.predictAction(state1), state1);
+        }
+        int x = curState.player.pos_x;
+        int x1 = curState.enemy.pos_x;
+        int y = curState.player.pos_y;
+        int y1 = curState.enemy.pos_y;
+        if(curState.player.emp>0){
+            if(x<x1&&Math.abs(y-y1)<=1){
+                // jangan EMP kalau kita malah nabrak lawan
+                if(y==y1){
+                    GlobalState stateCrash = Actions.simulateActions(Abilities.DO_NOTHING, Abilities.DO_NOTHING, curState);
+                    if(stateCrash.player.pos_x < curState.enemy.pos_x) {
+                        return Abilities.EMP;
+                    }
+                }
+                else{
+                    return Abilities.EMP;
+                }
+            }
+        }
+        else if(curState.player.oil>0){
+            if(x1+curState.enemy.speed>=x&&y==y1){
+                return Abilities.OIL;
+            }
+        }
+        else if(curState.player.tweet>0){
+            if(x > x1&&state2!=null){
+                // kalau abis round ini prediksinya FIX, ga usah simpen cybertruck
+                if(!Supports.isCommandEqual(Actions.predictAction(state1), Abilities.FIX)){
+                    // simpen agak jauh dari lawan, biar kasus kalau abs(x-x1)=1 ga terjadi
+                    // hati-hati juga, bisa jadi lawan nge-EMP kita pas placing cybertruck
+                    int cyber_x = state1.enemy.pos_x+3;
+                    int cyber_y = state2.enemy.pos_y;
+                    if(Math.abs(y-y1)<=1&&cyber_x==x&&cyber_y==y){
+                        cyber_x--;
+                    }
+                    if(cyber_x < state1.player.pos_x){
+                        return Abilities.TWEET(cyber_y, cyber_x);
+                    }
+                }
+            }
+        }
+        else if(curState.player.oil>0){
+            for(int px = Math.max(1, x-10); px <= Math.min(1500, x+10); px++){
+                if(y>1){
+                    if(curState.map.getTile(px, y-1).isBad()){
+                        return Abilities.OIL;
+                    }
+                }
+                else if(y<4){
+                    if(curState.map.getTile(px, y+1).isBad()){
+                        return Abilities.OIL;
+                    }
+                }
+            }
+            if(curState.player.oil>=3){
+                return Abilities.OIL;
+            }
+        }
+        return Abilities.DO_NOTHING;
+    }
 }

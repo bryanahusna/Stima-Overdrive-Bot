@@ -4,6 +4,7 @@ package za.co.entelect.challenge.algorithm;
 
 import za.co.entelect.challenge.command.Command;
 import za.co.entelect.challenge.globalentities.GlobalState;
+import za.co.entelect.challenge.utils.Abilities;
 import za.co.entelect.challenge.utils.Actions;
 
 import java.util.ArrayList;
@@ -61,18 +62,16 @@ public class Search {
                 }
             }
         }
-        else{
-            Double mx = Double.MIN_VALUE;
-            for(Node node: Candidates){
-                if(mx < score(Node)){
-                    mx = score(Node);
-                    this.bestActions = node.Actions;
-                    this.bestState = node.State;
-                }
-            }
-        }
+//        else{
+//            Double mx = Double.MIN_VALUE;
+//            for(Node node: Candidates){
+//                if(mx < score(Node)){
+//                    mx = score(Node);
+//                    this.bestActions = node.Actions;
+//                    this.bestState = node.State;
+//                }
+//            }
+//        }
     }
-    public Search(List<Command> Commands, GlobalState curState){
-        // offensive move
-    }
+
 }

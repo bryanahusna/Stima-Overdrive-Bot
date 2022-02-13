@@ -41,6 +41,12 @@ public class Tile {
     public void eraseLayer(){
         this.layer = this.tile;
     }
+    public boolean isBad(){
+        if(this.layer==Terrain.CYBERTRUCK||this.layer==Terrain.OIL_SPILL){
+            return true;
+        }
+        return this.tile==Terrain.MUD||this.tile==Terrain.WALL||this.tile==Terrain.OIL_SPILL;
+    }
 
     // equals true jika tile dan layernya sama
     @Override

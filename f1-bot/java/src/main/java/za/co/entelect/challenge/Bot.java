@@ -1,6 +1,7 @@
 package za.co.entelect.challenge;
 
 import com.google.gson.Gson;
+import za.co.entelect.challenge.algorithm.Search;
 import za.co.entelect.challenge.command.Command;
 import za.co.entelect.challenge.entities.Car;
 import za.co.entelect.challenge.entities.GameState;
@@ -8,12 +9,14 @@ import za.co.entelect.challenge.globalentities.GlobalState;
 import za.co.entelect.challenge.globalentities.Map;
 import za.co.entelect.challenge.globalentities.Player;
 import za.co.entelect.challenge.utils.Abilities;
+import za.co.entelect.challenge.utils.Actions;
 import za.co.entelect.challenge.utils.LogState;
 import za.co.entelect.challenge.utils.Supports;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import java.util.Scanner;
 
@@ -63,8 +66,18 @@ public class Bot {
 
                 GameState gameState = gson.fromJson(state, GameState.class);
                 takeRound(gameState, prevCommand);
-
-                Command command = Abilities.ACCELERATE; // pake search
+                //TODO:
+                // place cybertruck berdasarkan prevcommand di sini
+                Search Candidates = new Search(this.globalState, 4);
+                Command command = Candidates.bestActions.get(0);
+                if(Supports.isCommandEqual(Candidates.bestActions.get(0), Abilities.DO_NOTHING)){
+                    Candidates.bestActions.set(0, Actions.bestAttack(Candidates.bestActions, this.globalState));
+                    command = Candidates.bestActions.get(0);
+                    if(Supports.isCommandEqual(command, Abilities.OIL)){
+                        //TODO:
+                        // place Oil di sini
+                    }
+                }
                 System.out.println(String.format("C;%d;%s", roundNumber, command.render()));
                 prevCommand = command;
 
