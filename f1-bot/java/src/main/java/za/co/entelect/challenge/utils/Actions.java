@@ -178,10 +178,10 @@ public class Actions {
 
     public static Command bestAttack(List<Command> Commands, GlobalState curState) {
         // offensive move
-        GlobalState state1 = Actions.simulateActions(Commands.get(0), Actions.predictAction(curState), curState);
+        GlobalState state1 = Actions.simulateActions(Commands.get(0), Actions.predictAction(curState, 4), curState);
         GlobalState state2 = null;
         if (Commands.size() > 2) {
-            state2 = Actions.simulateActions(Commands.get(1), Actions.predictAction(state1), state1);
+            state2 = Actions.simulateActions(Commands.get(1), Actions.predictAction(state1, 4), state1);
         }
         int x = curState.player.pos_x;
         int x1 = curState.enemy.pos_x;
@@ -206,7 +206,7 @@ public class Actions {
         } else if (curState.player.tweet > 0) {
             if (x > x1 && state2 != null) {
                 // kalau abis round ini prediksinya FIX, ga usah simpen cybertruck
-                if (!Supports.isCommandEqual(Actions.predictAction(state1), Abilities.FIX)) {
+                if (!Supports.isCommandEqual(Actions.predictAction(state1, 4), Abilities.FIX)) {
                     // simpen agak jauh dari lawan, biar kasus kalau abs(x-x1)=1 ga terjadi
                     // hati-hati juga, bisa jadi lawan nge-EMP kita pas placing cybertruck
                     int cyber_x = state1.enemy.pos_x + 3;
