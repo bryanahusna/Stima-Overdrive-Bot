@@ -1,6 +1,5 @@
 package za.co.entelect.challenge.utils;
 
-import za.co.entelect.challenge.algorithm.Search;
 import za.co.entelect.challenge.command.Command;
 import za.co.entelect.challenge.enums.Terrain;
 import za.co.entelect.challenge.globalentities.GlobalState;
@@ -163,11 +162,18 @@ public class Actions {
     }
 
     public static Command predictAction(GlobalState state, int maxSearchDepth) {
-        return (
-                new Search(state.switch_(), maxSearchDepth)
-                        .bestActions
-                        .get(0)
-        );
+        if (maxSearchDepth == 0 || state.enemy.pos_x >= state.map.nxeff) {
+            return Abilities.ACCELERATE;
+        }
+
+        if (state.player.pos_x == state.enemy.pos_x - 1
+                && state.player.pos_y == state.enemy.pos_y
+                && state.enemy.speed == 0) {
+            return Abilities.DO_NOTHING;
+        }
+
+        // Todo:
+        return Abilities.ACCELERATE;
     }
 
     public static Command bestAttack(List<Command> Commands, GlobalState curState) {
