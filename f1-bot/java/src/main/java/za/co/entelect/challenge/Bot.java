@@ -6,8 +6,6 @@ import za.co.entelect.challenge.command.Command;
 import za.co.entelect.challenge.entities.Car;
 import za.co.entelect.challenge.entities.GameState;
 import za.co.entelect.challenge.globalentities.GlobalState;
-import za.co.entelect.challenge.globalentities.Map;
-import za.co.entelect.challenge.globalentities.Player;
 import za.co.entelect.challenge.utils.Abilities;
 import za.co.entelect.challenge.utils.Actions;
 import za.co.entelect.challenge.utils.LogState;
@@ -16,7 +14,6 @@ import za.co.entelect.challenge.utils.Supports;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Queue;
 import java.util.Scanner;
 
@@ -36,8 +33,7 @@ public class Bot {
         this.log = new LinkedList<LogState>();
     }
 
-    public void takeRound(GameState gameState, Command command){
-        // gameState.cybertruckLaneToTerrain();
+    public void takeRound(GameState gameState, Command command) {
         GlobalState prevState = this.globalState;
         this.gameState = gameState;
         this.myCar = gameState.player;
@@ -45,11 +41,18 @@ public class Bot {
         this.currentSpeedLimit = Supports.getCurrentSpeedLimit(gameState.player.damage);
         this.globalState.map.updateNewRound(gameState);
         this.globalState.player.update(gameState);
-        if(command != null){
-            this.log.add(new LogState(prevState, this.globalState, command));
-            // TODO:
-            // Lanjutin eksekusi log
-            // enemy di update berdasarkan log
+        if (command != null) {
+            LogState transition = new LogState(prevState, this.globalState, command);
+            this.log.add(transition);
+            while (!this.log.isEmpty()) {
+                LogState head = this.log.peek();
+                if (head.currentState.enemy.pos_x - this.globalState.map.nxeff > 0) {
+                    break;
+                } else {
+                    this.globalState.enemy.update(head);
+                    this.log.remove();
+                }
+            }
         }
     }
 
@@ -70,10 +73,10 @@ public class Bot {
                 // place cybertruck berdasarkan prevcommand di sini
                 Search Candidates = new Search(this.globalState, 4);
                 Command command = Candidates.bestActions.get(0);
-                if(Supports.isCommandEqual(Candidates.bestActions.get(0), Abilities.DO_NOTHING)){
+                if (Supports.isCommandEqual(Candidates.bestActions.get(0), Abilities.DO_NOTHING)) {
                     Candidates.bestActions.set(0, Actions.bestAttack(Candidates.bestActions, this.globalState));
                     command = Candidates.bestActions.get(0);
-                    if(Supports.isCommandEqual(command, Abilities.OIL)){
+                    if (Supports.isCommandEqual(command, Abilities.OIL)) {
                         //TODO:
                         // place Oil di sini
                     }
