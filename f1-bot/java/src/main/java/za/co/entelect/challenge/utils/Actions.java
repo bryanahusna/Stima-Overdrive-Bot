@@ -45,7 +45,7 @@ public class Actions {
 
         List<Tile> Cyber = new ArrayList<Tile>();
 
-        // for command that cause preliminary action
+        // for command that cause preliminary effect
         player.getFromAction(PlayerAction);
         enemy.getFromAction(EnemyAction);
 
@@ -159,5 +159,11 @@ public class Actions {
             ret.add(Abilities.BOOST);
         }
         return ret;
+    }
+
+    public static Command predictAction(GlobalState state){
+        // TODO:
+        // pred opp
+        return Abilities.ACCELERATE;
     }
 }
