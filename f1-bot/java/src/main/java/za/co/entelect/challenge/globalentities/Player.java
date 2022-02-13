@@ -68,22 +68,30 @@ public class Player {
         /* Hitung COMMAND lawan */
         Command cmd = state.calcOpponentCommand();
         if (cmd == null) {
-            state.currentState.enemy = state.prevState.enemy;
+            state.currentState.enemy = state.prevState.enemy.clone();
         }
 
-        // ????
-//        GlobalState predOppNS = Actions.simulateActions(
-//                Abilities.convertOffensive(state.action),
-//                cmd, state.prevState
-//        );
-//        Player opp = state.currentState.enemy;
-//        opp = predOppNS.enemy;
-//        opp.lizard = Math.max(opp.lizard, 0);
-//        opp.boost = Math.max(opp.boost, 0);
-//
-//        if (state.prevState.enemy.pos_x < state.prevState.player.pos_x) {
-//            predOppNS.map.updateNewRound(); // Gabisa dipass??
-//        }
+        GlobalState predOppNS = Actions.simulateActions(
+                Abilities.convertOffensive(state.action),
+                cmd, state.prevState
+        );
+        Player opp = predOppNS.enemy;
+        opp.lizard = Math.max(opp.lizard, 0);
+        opp.boost = Math.max(opp.boost, 0);
+
+        // Move calculated opp to this
+        this.id = opp.id;
+        this.pos_x = opp.pos_x;
+        this.pos_y = opp.pos_y;
+        this.speed = opp.speed;
+        this.damage = opp.damage;
+        this.boost = opp.boost;
+        this.oil = opp.oil;
+        this.tweet = opp.tweet;
+        this.lizard = opp.lizard;
+        this.emp = opp.emp;
+        this.nBoost = opp.nBoost;
+        this.score = opp.score;
     }
 
     public Player clone() {

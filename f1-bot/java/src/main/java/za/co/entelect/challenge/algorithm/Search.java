@@ -31,7 +31,7 @@ public class Search {
         while (!q.isEmpty()){
             Node p = q.remove();
             for(Command cmd: p.Actions){
-                p.State = Actions.simulateActions(cmd, Actions.predictAction(p.State), p.State);
+                p.State = Actions.simulateActions(cmd, Actions.predictAction(p.State,2), p.State);
             }
             if(p.State.map.nxeff<p.State.player.pos_x||p.Actions.size()==depth){
                 Candidates.add(p);
