@@ -98,31 +98,48 @@ public class Player {
 
         /* Hitung COMMAND lawan */
         Command cmd = state.calcOpponentCommand();
+        Player opp;
         if (cmd == null) {
-            state.currentState.enemy = state.prevState.enemy.clone();
+            // either EMP-ed, atau emg algonya ga jalan (tapi harusnya less likely sih
+            opp = state.prevState.enemy.clone();
+            this.id = opp.id;
+            this.pos_x = opp.pos_x;
+            this.pos_y = opp.pos_y;
+            this.speed = opp.speed;
+            this.damage = opp.damage;
+            this.boost = opp.boost;
+            this.oil = opp.oil;
+            this.tweet = opp.tweet;
+            this.lizard = opp.lizard;
+            this.emp = opp.emp;
+            this.nBoost = opp.nBoost;
+            this.score = opp.score;
+        }
+        else{
+            GlobalState predOppNS = Actions.simulateActions(
+                    Abilities.convertOffensive(state.action),
+                    cmd, state.prevState
+            );
+            opp = predOppNS.enemy;
+            opp.lizard = Math.max(opp.lizard, 0);
+            opp.boost = Math.max(opp.boost, 0);
+
+            // Move calculated opp to this
+            this.id = opp.id;
+            this.pos_x = opp.pos_x;
+            this.pos_y = opp.pos_y;
+            this.speed = opp.speed;
+            this.damage = opp.damage;
+            this.boost = opp.boost;
+            this.oil = opp.oil;
+            this.tweet = opp.tweet;
+            this.lizard = opp.lizard;
+            this.emp = opp.emp;
+            this.nBoost = opp.nBoost;
+            this.score = opp.score;
         }
 
-        GlobalState predOppNS = Actions.simulateActions(
-                Abilities.convertOffensive(state.action),
-                cmd, state.prevState
-        );
-        Player opp = predOppNS.enemy;
-        opp.lizard = Math.max(opp.lizard, 0);
-        opp.boost = Math.max(opp.boost, 0);
 
-        // Move calculated opp to this
-        this.id = opp.id;
-        this.pos_x = opp.pos_x;
-        this.pos_y = opp.pos_y;
-        this.speed = opp.speed;
-        this.damage = opp.damage;
-        this.boost = opp.boost;
-        this.oil = opp.oil;
-        this.tweet = opp.tweet;
-        this.lizard = opp.lizard;
-        this.emp = opp.emp;
-        this.nBoost = opp.nBoost;
-        this.score = opp.score;
     }
 
     public Player clone() {

@@ -163,7 +163,7 @@ public class Actions {
     }
 
     public static Command predictAction(GlobalState state) {
-        if (state.enemy.pos_x >= state.map.nxeff) {
+        if (state.enemy.pos_x > state.map.nxeff) {
             return Abilities.ACCELERATE;
         }
 
