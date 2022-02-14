@@ -42,7 +42,8 @@ public class Bot {
         this.opponent = gameState.opponent;
         this.currentSpeedLimit = Supports.getCurrentSpeedLimit(gameState.player.damage);
         this.globalState.map.updateNewRound(gameState);
-        this.globalState.player.update(gameState);
+        this.globalState.player.update(gameState, 1);
+        this.globalState.enemy.update(gameState, 2);
         if (command != null) {
             LogState transition = new LogState(prevState, this.globalState, command);
             this.log.add(transition);

@@ -46,32 +46,29 @@ public class Player {
         this.cyber_y = 0;
     }
 
-    public void update(GameState curState) {
-        // update cuma dipake buat player
+    public void update(GameState curState, int id) {
         this.pos_x = curState.player.position.block;
         this.pos_y = curState.player.position.lane;
         this.speed = curState.player.speed;
-        this.damage = curState.player.damage;
-        this.boost = 0;
-        this.emp = 0;
-        this.lizard = 0;
-        this.tweet = 0;
-        this.oil = 0;
-        for(PowerUps p: curState.player.powerups){
-            if(p==PowerUps.BOOST){
-                this.boost++;
-            }
-            else if(p==PowerUps.EMP){
-                this.emp++;
-            }
-            else if(p==PowerUps.LIZARD){
-                this.lizard++;
-            }
-            else if(p==PowerUps.OIL){
-                this.oil++;
-            }
-            else if(p==PowerUps.TWEET){
-                this.tweet++;
+        if(id==1) {
+            this.damage = curState.player.damage;
+            this.boost = 0;
+            this.emp = 0;
+            this.lizard = 0;
+            this.tweet = 0;
+            this.oil = 0;
+            for (PowerUps p : curState.player.powerups) {
+                if (p == PowerUps.BOOST) {
+                    this.boost++;
+                } else if (p == PowerUps.EMP) {
+                    this.emp++;
+                } else if (p == PowerUps.LIZARD) {
+                    this.lizard++;
+                } else if (p == PowerUps.OIL) {
+                    this.oil++;
+                } else if (p == PowerUps.TWEET) {
+                    this.tweet++;
+                }
             }
         }
     }
@@ -80,6 +77,7 @@ public class Player {
         // Update cuma dipake buat opponent
         if (state.prevState.enemy.pos_x >= state.prevState.player.pos_x) {
             // CLEAN MAP
+            state.prevState.map.clearMap(state.prevState.enemy.pos_x, state.currentState.enemy.pos_x);
         }
 
         /* Cek kalo misalnya kita ketinggalan / salah prediksi lawan.

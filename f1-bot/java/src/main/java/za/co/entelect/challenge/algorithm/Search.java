@@ -23,6 +23,20 @@ public class Search {
             this.State = state.clone();
             this.Actions = new ArrayList<>();
         }
+
+        public Node(){
+            this.Actions = new ArrayList<>();
+            this.State = new GlobalState();
+        }
+
+        public Node clone(){
+            Node clone = new Node();
+            for(Command command: this.Actions){
+                clone.Actions.add(command);
+            }
+            clone.State = this.State.clone();
+            return clone;
+        }
     }
 
     private Queue<Node> q;
@@ -47,7 +61,7 @@ public class Search {
             }
             for (Command newCmd : Actions.validAction(p.State)) {
                 p.Actions.add(newCmd);
-                q.add(p);
+                q.add(p.clone());
                 p.Actions.remove(p.Actions.size() - 1);
             }
         }
