@@ -68,4 +68,30 @@ public class Map {
         }
         this.nxeff = lanes.get(0)[lanes.get(0).length - 1].position.block;
     }
+
+    public void clearMap(int startX, int finalX){
+        for(int i = startX; i <= finalX; i++){
+            for(int j = 1; j <= y_size; j++){
+                if(this.map[i - 1][j - 1].getType() == Terrain.CYBERTRUCK){
+                    this.map[i - 1][j - 1].layer = Terrain.EMPTY;
+                } else if(this.map[i - 1][j - 1].getType() == Terrain.OIL_SPILL){
+                    this.map[i - 1][j - 1].layer = Terrain.EMPTY;
+                    this.map[i - 1][j - 1].tile = Terrain.EMPTY;
+                }
+            }
+        }
+    }
+
+    public static void clearMap(GlobalState state, int startX, int finalX){
+        for(int i = startX; i <= finalX; i++){
+            for(int j = 1; j <= 4; j++){
+                if(state.map.map[i - 1][j - 1].getType() == Terrain.CYBERTRUCK){
+                    state.map.map[i - 1][j - 1].layer = Terrain.EMPTY;
+                } else if(state.map.map[i - 1][j - 1].getType() == Terrain.OIL_SPILL){
+                    state.map.map[i - 1][j - 1].layer = Terrain.EMPTY;
+                    state.map.map[i - 1][j - 1].tile = Terrain.EMPTY;
+                }
+            }
+        }
+    }
 }

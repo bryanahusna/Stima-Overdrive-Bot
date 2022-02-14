@@ -24,7 +24,7 @@ public class Tile {
         return t;
     }
 
-    // Kalau layernya tidak EMPTY, kembalikan layer. Kalau layer EMPTY, kembalikan tile
+    /** Kalau layernya tidak EMPTY, kembalikan layer. Kalau layer EMPTY, kembalikan tile */
     public Terrain getType() {
         if (this.layer != Terrain.EMPTY) {
             return this.layer;

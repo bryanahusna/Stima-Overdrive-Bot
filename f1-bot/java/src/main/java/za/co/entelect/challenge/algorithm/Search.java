@@ -15,7 +15,7 @@ public class Search {
     public List<Command> bestActions;
     public GlobalState bestState;
 
-    private class Node {
+    public class Node {
         public List<Command> Actions;
         public GlobalState State;
 
@@ -70,16 +70,18 @@ public class Search {
                 }
             }
         }
-//        else{
-//            Double mx = Double.MIN_VALUE;
-//            for(Node node: Candidates){
-//                if(mx < score(Node)){
-//                    mx = score(Node);
-//                    this.bestActions = node.Actions;
-//                    this.bestState = node.State;
-//                }
-//            }
-//        }
+        else{
+            Double mx = Double.MIN_VALUE;
+            double currentScore;
+            for(Node node: Candidates){
+                currentScore = Scoring.score(node, state);
+                if(mx < currentScore){
+                    mx = currentScore;
+                    this.bestActions = node.Actions;
+                    this.bestState = node.State;
+                }
+            }
+        }
     }
 
 }

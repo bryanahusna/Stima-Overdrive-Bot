@@ -10,7 +10,10 @@ import za.co.entelect.challenge.entities.GameState;
 import za.co.entelect.challenge.entities.Lane;
 import za.co.entelect.challenge.enums.PowerUps;
 import za.co.entelect.challenge.enums.Terrain;
+import za.co.entelect.challenge.globalentities.GlobalState;
+import za.co.entelect.challenge.globalentities.Player;
 import za.co.entelect.challenge.utils.Abilities;
+import za.co.entelect.challenge.utils.Actions;
 import za.co.entelect.challenge.utils.Supports;
 
 /* CARA PAKAI:
@@ -39,6 +42,34 @@ public class Scoring {
         }
         
         return multiplyWeights(initialCar, currentCar);
+    }
+
+    public static double score(Search.Node n, GlobalState initialState){
+        double score = multiplyWeights(initialState, n.State);
+
+        GlobalState immediateNextState = Actions.simulateActions(n.Actions.get(0), Actions.predictAction(initialState), initialState);
+        score += multiplyWeights(initialState, immediateNextState);
+
+        return score;
+    }
+
+    /* Menghitung skor berdasarkan finalState dan initialState */
+    public static double multiplyWeights(GlobalState initialState, GlobalState finalState){
+        double score = 0;
+        Player initialPlayer = initialState.player;
+        Player finalPlayer = finalState.player;
+
+        score += (finalPlayer.pos_x - initialPlayer.pos_x) * Weights.POSITION;
+        score += (finalPlayer.speed - initialPlayer.speed) * Weights.SPEED;
+        score += (finalPlayer.damage - initialPlayer.damage) * Weights.DAMAGE;
+
+        score += (finalPlayer.boost - initialPlayer.boost) * Weights.BOOST;
+        score += (finalPlayer.oil - initialPlayer.oil) * Weights.OIL;
+        score += (finalPlayer.tweet - initialPlayer.tweet) * Weights.TWEET;
+        score += (finalPlayer.lizard - initialPlayer.lizard) * Weights.LIZARD;
+        score += (finalPlayer.emp - initialPlayer.emp) * Weights.EMP;
+
+        return score;
     }
 
     public static float multiplyWeights(Car initialCar, Car finalCar){
@@ -185,28 +216,3 @@ public class Scoring {
         car.powerups = newPowersArr;
     }
 }
-
-// @SerializedName("0")
-//     EMPTY,
-//     @SerializedName("1")
-//     MUD,
-//     @SerializedName("2")
-//     OIL_SPILL,
-//     @SerializedName("3")
-//     OIL_POWER,
-//     @SerializedName("4")
-//     FINISH,
-//     @SerializedName("5")
-//     BOOST,
-//     @SerializedName("6")
-//     WALL,
-//     @SerializedName("7")
-//     LIZARD,
-//     @SerializedName("8")
-//     TWEET,
-//     @SerializedName("9")
-//     EMP,
-//     @SerializedName("10")
-//     CYBERTRUCK,
-//     @SerializedName("11")
-//     ENEMY,
