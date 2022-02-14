@@ -62,16 +62,15 @@ public class Supports {
         if (isCommandEqual(cmd, Abilities.FIX)) {
             return ret;
         } else if (isCommandEqual(cmd, Abilities.LIZARD)) {
-            ret.add(state.map.getTile(x + dx + v, y));
+            ret.add(state.map.getTile(x + v, y));
             return ret;
         } else {
-            y += dy;
             if (dy != 0) {
-                ret.add(state.map.getTile(x, y));
+                ret.add(state.map.getTile(x, y+dy));
             }
             for (int i = x + 1; i <= x + dx + v; i++) {
-                ret.add(state.map.getTile(i, y));
-                if (state.map.getTile(i, y).layer == Terrain.CYBERTRUCK) {
+                ret.add(state.map.getTile(i, y+dy));
+                if (state.map.getTile(i, y+dy).layer == Terrain.CYBERTRUCK) {
                     break;
                 }
             }

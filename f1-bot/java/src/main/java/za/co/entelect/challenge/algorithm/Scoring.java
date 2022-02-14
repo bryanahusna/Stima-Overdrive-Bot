@@ -47,7 +47,7 @@ public class Scoring {
     public static double score(Search.Node n, GlobalState initialState){
         double score = multiplyWeights(initialState, n.State);
 
-        GlobalState immediateNextState = Actions.simulateActions(n.Actions.get(0), Actions.predictAction(initialState), initialState);
+        GlobalState immediateNextState = Actions.simulateActions(n.Actions.get(0), Actions.predictAction(initialState.clone()), initialState);
         score += multiplyWeights(initialState, immediateNextState);
 
         return score;

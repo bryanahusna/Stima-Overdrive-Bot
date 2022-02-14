@@ -47,10 +47,10 @@ public class Player {
     }
 
     public void update(GameState curState, int id) {
-        this.pos_x = curState.player.position.block;
-        this.pos_y = curState.player.position.lane;
-        this.speed = curState.player.speed;
         if(id==1) {
+            this.pos_x = curState.player.position.block;
+            this.pos_y = curState.player.position.lane;
+            this.speed = curState.player.speed;
             this.damage = curState.player.damage;
             this.boost = 0;
             this.emp = 0;
@@ -70,6 +70,11 @@ public class Player {
                     this.tweet++;
                 }
             }
+        }
+        else{
+            this.pos_x = curState.opponent.position.block;
+            this.pos_y = curState.opponent.position.lane;
+            this.speed = curState.opponent.speed;
         }
     }
 

@@ -28,18 +28,27 @@ public class Actions {
             }
         }
         // calculate path sampe tile == cybertruck atau selesai
-        List<Tile> PlayerPath = Supports.getPath(player.pos_x,
-                player.pos_y,
-                player.speed,
-                player.damage,
+        int speedPlayer = player.speed;
+        int speedEnemy = enemy.speed;
+        int playerX = player.pos_x;
+        int playerY = player.pos_y;
+        int enemyX = enemy.pos_x;
+        int enemyY = enemy.pos_y;
+        int playerDamage = player.damage;
+        int enemyDamage = enemy.damage;
+        List<Tile> PlayerPath = Supports.getPath(
+                playerX,
+                playerY,
+                speedPlayer,
+                playerDamage,
                 PlayerAction,
                 ret
         );
         List<Tile> EnemyPath = Supports.getPath(
-                enemy.pos_x,
-                enemy.pos_y,
-                enemy.speed,
-                enemy.damage,
+                enemyX,
+                enemyY,
+                speedEnemy,
+                enemyDamage,
                 EnemyAction,
                 ret
         );
@@ -64,8 +73,8 @@ public class Actions {
             Cyber.add(EnemyPath.get(EnemyPath.size() - 1));
             EnemyPath.remove(EnemyPath.size() - 1);
         }
-        Tile playerFinalTile = PlayerPath.get(PlayerPath.size() - 1);
-        Tile enemyFinalTile = EnemyPath.get(EnemyPath.size() - 1);
+        Tile playerFinalTile = PlayerPath.get(PlayerPath.size() - 1).clone();
+        Tile enemyFinalTile = EnemyPath.get(EnemyPath.size() - 1).clone();
 
         // collision resolve
         boolean udah = false;
@@ -122,7 +131,7 @@ public class Actions {
         }
         // update position
         player.changeLoc(PlayerPath.get(PlayerPath.size() - 1));
-        player.changeLoc(EnemyPath.get(EnemyPath.size() - 1));
+        enemy.changeLoc(EnemyPath.get(EnemyPath.size() - 1));
 
         // resource gathering
         player.getDrops(PlayerPath);

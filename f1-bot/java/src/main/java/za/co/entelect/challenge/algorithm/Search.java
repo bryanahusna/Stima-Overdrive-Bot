@@ -42,6 +42,8 @@ public class Search {
     private Queue<Node> q;
 
     public Search(GlobalState state, boolean OpponentWise) {
+        this.bestActions = new ArrayList<>();
+        this.bestState = new GlobalState();
         q = new LinkedList<>();
         q.add(new Node(state));
         List<Node> Candidates = new LinkedList<>();
@@ -49,7 +51,7 @@ public class Search {
             Node p = q.remove();
             for (Command cmd : p.Actions) {
                 if(!OpponentWise){
-                    p.State = Actions.simulateActions(cmd, Actions.predictAction(p.State), p.State);
+                    p.State = Actions.simulateActions(cmd, Actions.predictAction(p.State.clone()), p.State);
                 }
                 else{
                     p.State = Actions.simulateActions(cmd, Abilities.ACCELERATE, p.State);
@@ -65,8 +67,6 @@ public class Search {
                 p.Actions.remove(p.Actions.size() - 1);
             }
         }
-        // TODO:
-        // Scoring from hasil state
         boolean finalGame = false;
         for (Node node : Candidates) {
             if (node.State.player.pos_x >= 1500) {
@@ -79,8 +79,10 @@ public class Search {
             for (Node node : Candidates) {
                 if (mx < node.State.player.speed && node.State.player.pos_x >= 1500) {
                     mx = node.State.player.speed;
-                    this.bestActions = node.Actions;
-                    this.bestState = node.State;
+                    for(Command command: node.Actions){
+                        this.bestActions.add(command);
+                    }
+                    this.bestState = node.State.clone();
                 }
             }
         }
@@ -91,8 +93,10 @@ public class Search {
                 currentScore = Scoring.score(node, state);
                 if(mx < currentScore){
                     mx = currentScore;
-                    this.bestActions = node.Actions;
-                    this.bestState = node.State;
+                    for(Command command: node.Actions){
+                        this.bestActions.add(command);
+                    }
+                    this.bestState = node.State.clone();
                 }
             }
         }
