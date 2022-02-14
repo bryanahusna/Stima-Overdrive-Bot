@@ -24,8 +24,7 @@ public class Player {
     public int emp;
     public int nBoost; // if boost doesnt activate, dia 0
     public int score;
-    public int cyber_x;
-    public int cyber_y;
+
 
     public Player(int id) {
         // id 1 means player
@@ -42,8 +41,7 @@ public class Player {
         this.emp = 0;
         this.nBoost = 0;
         this.score = 0;
-        this.cyber_x = 0;
-        this.cyber_y = 0;
+
     }
 
     public void update(GameState curState, int id) {
@@ -78,12 +76,12 @@ public class Player {
         }
     }
 
-    public void update(LogState state) {
+    public void update(LogState state, Map globe) {
         // Update cuma dipake buat opponent
-        if (state.prevState.enemy.pos_x >= state.prevState.player.pos_x) {
-            // CLEAN MAP
-            state.prevState.map.clearMap(state.prevState.enemy.pos_x, state.currentState.enemy.pos_x);
-        }
+//        if (state.prevState.enemy.pos_x >= state.prevState.player.pos_x) {
+//            // CLEAN MAP
+//            state.prevS.clearMap(state.prevState.enemy.pos_x, state.currentState.enemy.pos_x);
+//        }
 
         /* Cek kalo misalnya kita ketinggalan / salah prediksi lawan.
          *  Kalo offset / speed akhir mereka lebih daripada yang seharusnya,
@@ -100,7 +98,7 @@ public class Player {
         state.prevState.enemy.damage = damage; // Update damage
 
         /* Hitung COMMAND lawan */
-        Command cmd = state.calcOpponentCommand();
+        Command cmd = state.calcOpponentCommand(globe);
         Player opp;
         if (cmd == null) {
             // either EMP-ed, atau emg algonya ga jalan (tapi harusnya less likely sih
@@ -121,7 +119,7 @@ public class Player {
         else{
             GlobalState predOppNS = Actions.simulateActions(
                     Abilities.convertOffensive(state.action),
-                    cmd, state.prevState
+                    cmd, state.prevState, globe
             );
             opp = predOppNS.enemy;
             opp.lizard = Math.max(opp.lizard, 0);
@@ -159,81 +157,30 @@ public class Player {
         clone.emp = this.emp;
         clone.nBoost = this.nBoost;
         clone.score = this.score;
-        clone.cyber_x = this.cyber_y;
-        clone.cyber_y = this.cyber_y;
         return clone;
     }
 
-    public void changeCyberTruck(int x, int y){
-        this.cyber_x = x;
-        this.cyber_y = y;
+
+    public void updatePos(Path P) {
+        Path pos = P.clone();
+        this.pos_x += pos.dx;
+        this.pos_y += pos.dy;
+        this.speed = pos.v;
     }
-    public void changeSpeed(Command PlayerAction) {
-        if (Supports.isCommandEqual(PlayerAction, Abilities.ACCELERATE)) {
-            this.speed = Supports.getAcceleratedSpeed(this.speed, this.damage);
-        } else if (Supports.isCommandEqual(PlayerAction, Abilities.DECELERATE)) {
+
+    public void updateResouce(Resource drops){
+        this.oil += drops.oil;
+        this.lizard += drops.lizard;
+        this.tweet += drops.tweet;
+        this.emp += drops.emp;
+        this.boost += drops.boost;
+        this.score += drops.score;
+        this.damage = Math.min(5, this.damage + drops.damage);
+        if(drops.bad > 0){
             this.nBoost = 0;
-            this.speed = Supports.getDeceleratedSpeed(this.speed, false, this.damage);
-        } else if (Supports.isCommandEqual(PlayerAction, Abilities.BOOST)) {
-            this.speed = Supports.getBoostedSpeed(this.damage);
         }
     }
 
-    public void changeLoc(Tile T) {
-        this.pos_x = T.x;
-        this.pos_y = T.y;
-    }
-
-    public void getDrops(List<Tile> Path) {
-        // update powerup, score, speed, dan damage player berdasarkan Path
-        for (Tile block : Path) {
-            if (block.tile == Terrain.EMPTY)
-                continue;
-            else if (block.tile == Terrain.MUD || block.tile == Terrain.OIL_SPILL) {
-                this.givePenalty(block);
-                this.speed = Supports.getDeceleratedSpeed(this.speed, true, this.damage);
-            } else if (block.tile == Terrain.WALL) {
-                this.givePenalty(block);
-                this.speed = Supports.getDeceleratedSpeed(this.speed, false, this.damage);
-            } else if (block.tile == Terrain.OIL_POWER) {
-                this.oil++;
-                this.score += 4;
-            } else if (block.tile == Terrain.BOOST) {
-                this.boost++;
-                this.score += 4;
-            } else if (block.tile == Terrain.LIZARD) {
-                this.lizard++;
-                this.score += 4;
-            } else if (block.tile == Terrain.TWEET) {
-                this.tweet++;
-                this.score += 4;
-            } else if (block.tile == Terrain.EMP) {
-                this.emp++;
-                this.score += 4;
-            }
-        }
-    }
-
-    private void givePenalty(Tile block) {
-        if (block.tile == Terrain.MUD) {
-            this.score -= 3;
-            this.damage += 1;
-            this.nBoost = 0;
-        } else if (block.tile == Terrain.OIL_SPILL) {
-            this.score -= 4;
-            this.damage += 1;
-            this.nBoost = 0;
-        } else if (block.tile == Terrain.WALL) {
-            this.score -= 5;
-            this.damage += 2;
-            this.nBoost = 0;
-        } else if (block.tile == Terrain.CYBERTRUCK) {
-            this.score -= 7;
-            this.damage += 2;
-            this.nBoost = 0;
-        }
-
-    }
 
     public void getFromAction(Command PlayerAction) {
         if (Supports.isCommandEqual(PlayerAction, Abilities.FIX)) {
@@ -246,5 +193,20 @@ public class Player {
             this.lizard -= 1;
             this.score += 4;
         }
+    }
+
+    public void printAll(){
+        System.out.println("id: "+this.id);
+        System.out.println("pos_x: "+this.pos_x);
+        System.out.println("pos_y: " + this.pos_y);
+        System.out.println("speed: " +this.speed);
+        System.out.println("damage: "+this.damage);
+        System.out.println("boost: "+this.boost);
+        System.out.println("oil: "+this.oil);
+        System.out.println("tweet: "+this.tweet);
+        System.out.println("lizard: "+this.lizard);
+        System.out.println("emp: "+this.emp);
+        System.out.println("boost: "+this.nBoost);
+        System.out.println("score: "+this.score);
     }
 }

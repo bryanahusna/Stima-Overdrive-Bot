@@ -1,11 +1,10 @@
 package za.co.entelect.challenge.utils;
 
+
 import za.co.entelect.challenge.command.Command;
 import za.co.entelect.challenge.entities.Lane;
 import za.co.entelect.challenge.enums.PowerUps;
 import za.co.entelect.challenge.enums.Terrain;
-import za.co.entelect.challenge.globalentities.GlobalState;
-import za.co.entelect.challenge.globalentities.Tile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,50 +32,6 @@ public class Supports {
         return blocks;
     }
 
-    public static boolean isTileEqual(Tile a, Tile b) {
-        return (a.x == b.x && a.y == b.y);
-    }
-
-    public static boolean sameCoordinate(Tile a, int x, int y) {
-        return (a.x == x && a.y == y);
-    }
-
-    public static List<Tile> getPath(int x, int y, int v, int damage, Command cmd, GlobalState state) {
-        List<Tile> ret = new ArrayList<Tile>();
-        ret.add(state.map.getTile(x, y));
-        int dx = 0;
-        int dy = 0;
-        if (isCommandEqual(cmd, Abilities.TURN_LEFT)) {
-            dy -= 1;
-            dx -= 1;
-        } else if (isCommandEqual(cmd, Abilities.TURN_RIGHT)) {
-            dy += 1;
-            dx -= 1;
-        } else if (isCommandEqual(cmd, Abilities.ACCELERATE)) {
-            v = getAcceleratedSpeed(v, damage);
-        } else if (isCommandEqual(cmd, Abilities.DECELERATE)) {
-            v = getDeceleratedSpeed(v, false, damage);
-        } else if (isCommandEqual(cmd, Abilities.BOOST)) {
-            v = getBoostedSpeed(damage);
-        }
-        if (isCommandEqual(cmd, Abilities.FIX)) {
-            return ret;
-        } else if (isCommandEqual(cmd, Abilities.LIZARD)) {
-            ret.add(state.map.getTile(x + v, y));
-            return ret;
-        } else {
-            if (dy != 0) {
-                ret.add(state.map.getTile(x, y+dy));
-            }
-            for (int i = x + 1; i <= x + dx + v; i++) {
-                ret.add(state.map.getTile(i, y+dy));
-                if (state.map.getTile(i, y+dy).layer == Terrain.CYBERTRUCK) {
-                    break;
-                }
-            }
-            return ret;
-        }
-    }
 
     public static int getCurrentSpeedLimit(int damage) {
         int currentMaxSpeed;
@@ -149,6 +104,7 @@ public class Supports {
                 deceleratedSpeed = 6;
                 break;
             case 6:
+            case 5:
                 deceleratedSpeed = 3;
                 break;
             case 3:

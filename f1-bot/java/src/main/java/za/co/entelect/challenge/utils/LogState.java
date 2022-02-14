@@ -3,6 +3,7 @@ package za.co.entelect.challenge.utils;
 import za.co.entelect.challenge.command.Command;
 import za.co.entelect.challenge.enums.Terrain;
 import za.co.entelect.challenge.globalentities.GlobalState;
+import za.co.entelect.challenge.globalentities.Map;
 import za.co.entelect.challenge.globalentities.Tile;
 
 import java.util.List;
@@ -18,7 +19,7 @@ public class LogState {
         this.action = action;
     }
 
-    public Command calcOpponentCommand() {
+    public Command calcOpponentCommand(Map globe) {
         Command cmd = this.action;
 
         if (cmd == Abilities.EMP) {
@@ -44,7 +45,7 @@ public class LogState {
 
         List<Command> validActions = Actions.validAction(this.currentState.switch_());
         for (Command oppCmd : validActions) {
-            GlobalState sim = Actions.simulateActions(cmd, oppCmd, this.prevState);
+            GlobalState sim = Actions.simulateActions(cmd, oppCmd, this.prevState, globe);
             if (sim.enemy.pos_x == afterX
                     && sim.enemy.pos_y == afterY
                     && sim.enemy.speed == afterSpeed) {
@@ -80,7 +81,7 @@ public class LogState {
             int startX = offsetY != 0 ? x : x + 1;
 
             for (int _x = startX; _x < afterX + 1; _x++) {
-                Tile block = this.prevState.map.getTile(_x, _y);
+                Tile block = globe.getTile(_x, _y);
                 if (block.tile == Terrain.MUD) {
                     _speed = Supports.getDeceleratedSpeed(_speed, true, 0);
                 } else if (block.tile == Terrain.OIL_SPILL) {

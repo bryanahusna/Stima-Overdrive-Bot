@@ -1,17 +1,16 @@
 package za.co.entelect.challenge.utils;
 
+
+import jdk.javadoc.internal.doclets.toolkit.util.Utils;
 import za.co.entelect.challenge.algorithm.Search;
 import za.co.entelect.challenge.command.Command;
-import za.co.entelect.challenge.enums.Terrain;
-import za.co.entelect.challenge.globalentities.GlobalState;
-import za.co.entelect.challenge.globalentities.Player;
-import za.co.entelect.challenge.globalentities.Tile;
+import za.co.entelect.challenge.globalentities.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Actions {
-    public static GlobalState simulateActions(Command PlayerAction, Command EnemyAction, GlobalState InitState) {
+    public static GlobalState simulateActions(Command PlayerAction, Command EnemyAction, GlobalState InitState, Map globe) {
         GlobalState ret = InitState.clone();
         Player player = ret.player;
         Player enemy = ret.enemy;
@@ -20,130 +19,57 @@ public class Actions {
             if (player.nBoost == 0) {
                 player.speed = Supports.getCurrentSpeedLimit(player.damage);
             }
+            else if(Supports.isCommandEqual(PlayerAction, Abilities.DECELERATE)){
+                player.nBoost = 0;
+            }
         }
+
         if (enemy.nBoost > 0) {
             enemy.nBoost--;
             if (enemy.nBoost == 0) {
                 enemy.speed = Supports.getCurrentSpeedLimit(enemy.damage);
             }
+            else if(Supports.isCommandEqual(EnemyAction, Abilities.DECELERATE)){
+                player.nBoost = 0;
+            }
         }
-        // calculate path sampe tile == cybertruck atau selesai
-        int speedPlayer = player.speed;
-        int speedEnemy = enemy.speed;
-        int playerX = player.pos_x;
-        int playerY = player.pos_y;
-        int enemyX = enemy.pos_x;
-        int enemyY = enemy.pos_y;
-        int playerDamage = player.damage;
-        int enemyDamage = enemy.damage;
-        List<Tile> PlayerPath = Supports.getPath(
-                playerX,
-                playerY,
-                speedPlayer,
-                playerDamage,
-                PlayerAction,
-                ret
-        );
-        List<Tile> EnemyPath = Supports.getPath(
-                enemyX,
-                enemyY,
-                speedEnemy,
-                enemyDamage,
-                EnemyAction,
-                ret
-        );
 
-        List<Tile> Cyber = new ArrayList<>();
-
-        // for command that cause preliminary effect
+        // for command that causes preliminary effect
         player.getFromAction(PlayerAction);
         enemy.getFromAction(EnemyAction);
 
-        if (PlayerPath.get(PlayerPath.size() - 1).tile == Terrain.CYBERTRUCK) {
-            player.score -= 7;
-            player.damage = Math.min(player.damage + 2, 5);
-            player.nBoost = 0;
-            Cyber.add(PlayerPath.get(PlayerPath.size() - 1));
-            PlayerPath.remove(PlayerPath.size() - 1);
-        }
-        if (EnemyPath.get(EnemyPath.size() - 1).tile == Terrain.CYBERTRUCK) {
-            enemy.score -= 7;
-            enemy.damage = Math.min(enemy.damage + 2, 5);
-            enemy.nBoost = 0;
-            Cyber.add(EnemyPath.get(EnemyPath.size() - 1));
-            EnemyPath.remove(EnemyPath.size() - 1);
-        }
-        Tile playerFinalTile = PlayerPath.get(PlayerPath.size() - 1).clone();
-        Tile enemyFinalTile = EnemyPath.get(EnemyPath.size() - 1).clone();
+        // calculate path
+        Path PlayerPath = new Path();
+        PlayerPath.updatePath(PlayerAction, player);
 
+        Path EnemyPath = new Path();
+        EnemyPath.updatePath(EnemyAction, enemy);
+
+        // cybertruck
+        Resource PlayerCyber = new Resource(globe, PlayerPath, PlayerAction, true);
+        Resource EnemyCyber = new Resource(globe, EnemyPath, EnemyAction, true);
+        for(Utils.Pair<Integer, Integer> P: PlayerCyber.cyberPos){
+            ret.deleteCyberTruck(P.first, P.second);
+        }
+        for(Utils.Pair<Integer, Integer> P: EnemyCyber.cyberPos){
+            ret.deleteCyberTruck(P.first, P.second);
+        }
         // collision resolve
-        boolean udah = false;
-        if (Supports.isTileEqual(playerFinalTile, enemyFinalTile)) {
-            PlayerPath.remove(PlayerPath.size() - 1);
-            for (int i = 1; i < PlayerPath.size(); i++) {
-                PlayerPath.set(i, new Tile(PlayerPath.get(i).x, PlayerPath.get(0).y));
-            }
-            EnemyPath.remove(EnemyPath.size() - 1);
-            for (int i = 1; i < EnemyPath.size(); i++) {
-                EnemyPath.set(i, new Tile(EnemyPath.get(i).x, EnemyPath.get(0).y));
-            }
-            udah = true;
-        }
-        for (int i = 1; i < PlayerPath.size() && !udah; i++) {
-            Tile playerTile = PlayerPath.get(i);
-            if (playerTile.y != enemyFinalTile.y) {
-                break;
-            }
-            if (playerTile.x == enemyFinalTile.x) {
-                if (PlayerPath.get(0).x < EnemyPath.get(0).x) {
-                    int xa = playerTile.x;
-                    int ya = playerTile.y;
-                    for (int j = i; j < PlayerPath.size(); j++) {
-                        PlayerPath.remove(i);
-                    }
-                    if (!Supports.sameCoordinate(PlayerPath.get(i - 1), xa - 1, ya)) {
-                        PlayerPath.add(ret.map.getTile(xa - 1, ya));
-                    }
-                    udah = true;
-                    break;
-                }
-            }
-        }
+        PlayerPath.resolveCollision(EnemyPath, PlayerAction, EnemyAction);
 
-        for (int i = 1; i < EnemyPath.size() && !udah; i++) {
-            Tile enemyTile = EnemyPath.get(i);
-            if (enemyTile.y != playerFinalTile.y) {
-                break;
-            }
-            if (enemyTile.x == playerFinalTile.x) {
-                if (EnemyPath.get(0).x < PlayerPath.get(0).x) {
-                    int xa = enemyTile.x;
-                    int ya = enemyTile.y;
-                    for (int j = i; j < EnemyPath.size(); j++) {
-                        EnemyPath.remove(i);
-                    }
-                    if (!Supports.sameCoordinate(EnemyPath.get(i - 1), xa - 1, ya)) {
-                        EnemyPath.add(ret.map.getTile(xa - 1, ya));
-                    }
-                    break;
-                }
-            }
-        }
+        // collect resource after collision
+        Resource PlayerResource = new Resource(globe, PlayerPath, PlayerAction, false);
+        Resource EnemyResource = new Resource(globe, EnemyPath, EnemyAction, false);
+
         // update position
-        player.changeLoc(PlayerPath.get(PlayerPath.size() - 1));
-        enemy.changeLoc(EnemyPath.get(EnemyPath.size() - 1));
+        player.updatePos(PlayerPath);
+        enemy.updatePos(EnemyPath);
 
         // resource gathering
-        player.getDrops(PlayerPath);
-        enemy.getDrops(EnemyPath);
+        player.updateResouce(PlayerResource);
+        enemy.updateResouce(EnemyResource);
 
-        // update speed
-        player.changeSpeed(PlayerAction);
-        enemy.changeSpeed(EnemyAction);
 
-        for (Tile cybertrucks : Cyber) {
-            ret.map.map[cybertrucks.x][cybertrucks.y].deleteCybertruck();
-        }
         return ret;
     }
 
@@ -171,8 +97,8 @@ public class Actions {
         return ret;
     }
 
-    public static Command predictAction(GlobalState state) {
-        if (state.enemy.pos_x > state.map.nxeff) {
+    public static Command predictAction(GlobalState state, Map globe) {
+        if (state.enemy.pos_x > globe.nxeff) {
             return Abilities.ACCELERATE;
         }
 
@@ -182,15 +108,15 @@ public class Actions {
             return Abilities.DO_NOTHING;
         }
 
-        return (new Search(state.switch_(),true)).bestActions.get(0);
+        return (new Search(state.switch_(),true, globe)).findBestAction(state.switch_(), globe,true).get(0);
     }
 
-    public static Command bestAttack(List<Command> Commands, GlobalState curState) {
+    public static Command bestAttack(List<Command> Commands, GlobalState curState, Map globe) {
         // offensive move
-        GlobalState state1 = Actions.simulateActions(Commands.get(0), Actions.predictAction(curState), curState);
+        GlobalState state1 = Actions.simulateActions(Commands.get(0), Actions.predictAction(curState, globe), curState, globe);
         GlobalState state2 = null;
         if (Commands.size() > 2) {
-            state2 = Actions.simulateActions(Commands.get(1), Actions.predictAction(state1), state1);
+            state2 = Actions.simulateActions(Commands.get(1), Actions.predictAction(state1, globe), state1, globe);
         }
         int x = curState.player.pos_x;
         int x1 = curState.enemy.pos_x;
@@ -200,7 +126,7 @@ public class Actions {
             if (x < x1 && Math.abs(y - y1) <= 1) {
                 // jangan EMP kalau kita malah nabrak lawan
                 if (y == y1) {
-                    GlobalState stateCrash = Actions.simulateActions(Abilities.DO_NOTHING, Abilities.DO_NOTHING, curState);
+                    GlobalState stateCrash = Actions.simulateActions(Abilities.DO_NOTHING, Abilities.DO_NOTHING, curState, globe);
                     if (stateCrash.player.pos_x < curState.enemy.pos_x) {
                         return Abilities.EMP;
                     }
@@ -215,7 +141,7 @@ public class Actions {
         } else if (curState.player.tweet > 0) {
             if (x > x1 && state2 != null) {
                 // kalau abis round ini prediksinya FIX, ga usah simpen cybertruck
-                if (!Supports.isCommandEqual(Actions.predictAction(state1), Abilities.FIX)) {
+                if (!Supports.isCommandEqual(Actions.predictAction(state1, globe), Abilities.FIX)) {
                     // simpen agak jauh dari lawan, biar kasus kalau abs(x-x1)=1 ga terjadi
                     // hati-hati juga, bisa jadi lawan nge-EMP kita pas placing cybertruck
                     int cyber_x = state1.enemy.pos_x + 2;
@@ -224,13 +150,14 @@ public class Actions {
                         cyber_x--;
                     }
                     if (cyber_x < state1.player.pos_x) {
-                        int prevCyber_x = curState.player.cyber_x;
-                        int prevCyber_y = curState.player.cyber_y;
-                        if(prevCyber_x!=0){
-                            curState.map.getTile(prevCyber_x, prevCyber_y).deleteCybertruck();
-                        }
-                        curState.map.getTile(cyber_x, cyber_y).setCybertruck();
-                        curState.player.changeCyberTruck(cyber_x, cyber_y);
+//                        int prevCyber_x = curState.player.cyber_x;
+//                        int prevCyber_y = curState.player.cyber_y;
+//                        if(prevCyber_x!=0){
+//                            //curState.map.getTile(prevCyber_x, prevCyber_y).deleteCybertruck();
+//                            curState.deleteCyberTruck(prevCyber_x, prevCyber_y);
+//                        }
+//                        curState.setCyberTruck(cyber_x, cyber_y);
+//                        curState.player.changeCyberTruck(cyber_x, cyber_y);
                         return Abilities.TWEET(cyber_y, cyber_x);
                     }
                 }
@@ -238,11 +165,11 @@ public class Actions {
         } else if (curState.player.oil > 0) {
             for (int px = Math.max(1, x - 10); px <= Math.min(1500, x + 10); px++) {
                 if (y > 1) {
-                    if (curState.map.getTile(px, y - 1).isBad()) {
+                    if (globe.getTile(px, y - 1).isBad()) {
                         return Abilities.OIL;
                     }
                 } else if (y < 4) {
-                    if (curState.map.getTile(px, y + 1).isBad()) {
+                    if (globe.getTile(px, y + 1).isBad()) {
                         return Abilities.OIL;
                     }
                 }

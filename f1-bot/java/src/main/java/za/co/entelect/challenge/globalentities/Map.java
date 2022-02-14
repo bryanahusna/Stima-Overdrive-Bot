@@ -82,16 +82,16 @@ public class Map {
         }
     }
 
-    public static void clearMap(GlobalState state, int startX, int finalX){
-        for(int i = startX; i <= finalX; i++){
-            for(int j = 1; j <= 4; j++){
-                if(state.map.map[i - 1][j - 1].getType() == Terrain.CYBERTRUCK){
-                    state.map.map[i - 1][j - 1].layer = Terrain.EMPTY;
-                } else if(state.map.map[i - 1][j - 1].getType() == Terrain.OIL_SPILL){
-                    state.map.map[i - 1][j - 1].layer = Terrain.EMPTY;
-                    state.map.map[i - 1][j - 1].tile = Terrain.EMPTY;
-                }
-            }
-        }
-    }
+//    public static void clearMap(GlobalState state, int startX, int finalX){
+//        for(int i = startX; i <= finalX; i++){
+//            for(int j = 1; j <= 4; j++){
+//                if(state.map.map[i - 1][j - 1].getType() == Terrain.CYBERTRUCK){
+//                    state.map.map[i - 1][j - 1].layer = Terrain.EMPTY;
+//                } else if(state.map.map[i - 1][j - 1].getType() == Terrain.OIL_SPILL){
+//                    state.map.map[i - 1][j - 1].layer = Terrain.EMPTY;
+//                    state.map.map[i - 1][j - 1].tile = Terrain.EMPTY;
+//                }
+//            }
+//        }
+//    }
 }

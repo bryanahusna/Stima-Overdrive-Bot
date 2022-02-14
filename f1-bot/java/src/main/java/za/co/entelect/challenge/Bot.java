@@ -7,6 +7,7 @@ import za.co.entelect.challenge.entities.Car;
 import za.co.entelect.challenge.entities.GameState;
 import za.co.entelect.challenge.enums.Terrain;
 import za.co.entelect.challenge.globalentities.GlobalState;
+import za.co.entelect.challenge.globalentities.Map;
 import za.co.entelect.challenge.utils.Abilities;
 import za.co.entelect.challenge.utils.Actions;
 import za.co.entelect.challenge.utils.LogState;
@@ -15,6 +16,7 @@ import za.co.entelect.challenge.utils.Supports;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import java.util.Scanner;
 
@@ -28,11 +30,13 @@ public class Bot {
     public Car opponent;
     public Car myCar;
     public int currentSpeedLimit;
+    public Map globalMap;
 
 
     public Bot() {
         this.globalState = new GlobalState();
         this.log = new LinkedList<>();
+        this.globalMap = new Map();
     }
 
     public void takeRound(GameState gameState, Command command) {
@@ -41,7 +45,8 @@ public class Bot {
         this.myCar = gameState.player;
         this.opponent = gameState.opponent;
         this.currentSpeedLimit = Supports.getCurrentSpeedLimit(gameState.player.damage);
-        this.globalState.map.updateNewRound(gameState);
+        //this.globalState.map.updateNewRound(gameState);
+        this.globalMap.updateNewRound(gameState);
         this.globalState.player.update(gameState, 1);
         this.globalState.enemy.update(gameState, 2);
         if (command != null) {
@@ -49,10 +54,10 @@ public class Bot {
             this.log.add(transition);
             while (!this.log.isEmpty()) {
                 LogState head = this.log.peek();
-                if (head.currentState.enemy.pos_x - this.globalState.map.nxeff > 0) {
+                if (head.currentState.enemy.pos_x - this.globalMap.nxeff > 0) {
                     break;
                 } else {
-                    this.globalState.enemy.update(head);
+                    this.globalState.enemy.update(head, globalMap);
                     this.log.remove();
                 }
             }
@@ -72,14 +77,20 @@ public class Bot {
                 String state = new String(Files.readAllBytes(Paths.get(statePath)));
 
                 GameState gameState = gson.fromJson(state, GameState.class);
+
+//                if(gameState.state == State.USED_TWEET){
+//
+//                }
+
                 takeRound(gameState, prevCommand);
-                Search Candidates = new Search(this.globalState,false);
-                Command command = Candidates.bestActions.get(0);
-                if (Supports.isCommandEqual(Candidates.bestActions.get(0), Abilities.DO_NOTHING)) {
-                    Candidates.bestActions.set(0, Actions.bestAttack(Candidates.bestActions, this.globalState));
-                    command = Candidates.bestActions.get(0);
+                Search Candidates = new Search(this.globalState,false, globalMap);
+                List<Command> commands = Candidates.findBestAction(globalState, globalMap, false);
+                Command command = commands.get(0);
+                if (Supports.isCommandEqual(command, Abilities.DO_NOTHING)) {
+                    command = Actions.bestAttack(commands, this.globalState, globalMap);
+                    //command = Candidates.bestActions.get(0);
                     if (Supports.isCommandEqual(command, Abilities.OIL)) {
-                        this.globalState.map.setTile(myCar.position.block, myCar.position.lane, Terrain.OIL_SPILL);
+                        this.globalMap.setTile(myCar.position.block, myCar.position.lane, Terrain.OIL_SPILL);
                     }
                 }
                 System.out.println(String.format("C;%d;%s", roundNumber, command.render()));

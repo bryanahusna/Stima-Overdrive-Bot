@@ -3,6 +3,7 @@ package za.co.entelect.challenge.algorithm;
 
 import za.co.entelect.challenge.command.Command;
 import za.co.entelect.challenge.globalentities.GlobalState;
+import za.co.entelect.challenge.globalentities.Map;
 import za.co.entelect.challenge.utils.Abilities;
 import za.co.entelect.challenge.utils.Actions;
 
@@ -12,8 +13,8 @@ import java.util.List;
 import java.util.Queue;
 
 public class Search {
-    public List<Command> bestActions;
-    public GlobalState bestState;
+    public List<Node> candidateActions;
+    //public GlobalState bestState;
 
     public class Node {
         public List<Command> Actions;
@@ -29,46 +30,55 @@ public class Search {
             this.State = new GlobalState();
         }
 
-        public Node clone(){
+        public Node clone(GlobalState newState){
             Node clone = new Node();
-            for(Command command: this.Actions){
-                clone.Actions.add(command);
-            }
-            clone.State = this.State.clone();
+            clone.Actions.addAll(this.Actions);
+            clone.State = newState.clone();
             return clone;
         }
     }
 
     private Queue<Node> q;
 
-    public Search(GlobalState state, boolean OpponentWise) {
-        this.bestActions = new ArrayList<>();
-        this.bestState = new GlobalState();
+    public Search(GlobalState state, boolean OpponentWise, Map globe) {
+        this.candidateActions = new ArrayList<>();
         q = new LinkedList<>();
         q.add(new Node(state));
         List<Node> Candidates = new LinkedList<>();
         while (!q.isEmpty()) {
             Node p = q.remove();
-            for (Command cmd : p.Actions) {
-                if(!OpponentWise){
-                    p.State = Actions.simulateActions(cmd, Actions.predictAction(p.State.clone()), p.State);
+            if(!OpponentWise){
+                System.out.print("[");
+                for (Command cmd : p.Actions) {
+                    Abilities.print(cmd);
                 }
-                else{
-                    p.State = Actions.simulateActions(cmd, Abilities.ACCELERATE, p.State);
-                }
+                System.out.println("]");
             }
-            if (p.State.map.nxeff < p.State.player.pos_x || p.Actions.size() == 4) {
+            if (p.Actions.size() == 3) {
                 Candidates.add(p);
-                continue;
             }
-            for (Command newCmd : Actions.validAction(p.State)) {
-                p.Actions.add(newCmd);
-                q.add(p.clone());
-                p.Actions.remove(p.Actions.size() - 1);
+            if(p.Actions.size()<4) {
+                for (Command newCmd : Actions.validAction(p.State)) {
+                    p.Actions.add(newCmd);
+                    GlobalState newState;
+                    if(!OpponentWise){
+                        newState = Actions.simulateActions(newCmd, Actions.predictAction(p.State.clone(), globe), p.State.clone(), globe);
+                    }
+                    else{
+                        newState = Actions.simulateActions(newCmd, Abilities.ACCELERATE, p.State.clone(), globe);
+                    }
+                    q.add(p.clone(newState));
+                    p.Actions.remove(p.Actions.size() - 1);
+                }
             }
         }
+        this.candidateActions.addAll(Candidates);
+        //this.bestActions.addAll(Candidates.get(0).Actions);
+    }
+    public List<Command> findBestAction(GlobalState state, Map globe,  boolean opponentWise){
+        List<Command> bestAction = new ArrayList<>();
         boolean finalGame = false;
-        for (Node node : Candidates) {
+        for (Node node : this.candidateActions) {
             if (node.State.player.pos_x >= 1500) {
                 finalGame = true;
                 break;
@@ -76,30 +86,26 @@ public class Search {
         }
         if (finalGame) {
             int mx = Integer.MIN_VALUE;
-            for (Node node : Candidates) {
+            for (Node node : this.candidateActions) {
                 if (mx < node.State.player.speed && node.State.player.pos_x >= 1500) {
+                    bestAction = new ArrayList<>();
                     mx = node.State.player.speed;
-                    for(Command command: node.Actions){
-                        this.bestActions.add(command);
-                    }
-                    this.bestState = node.State.clone();
+                    bestAction.addAll(node.Actions);
                 }
             }
         }
         else{
             Double mx = Double.MIN_VALUE;
             double currentScore;
-            for(Node node: Candidates){
-                currentScore = Scoring.score(node, state);
+            for(Node node: this.candidateActions){
+                currentScore = Scoring.score(node, state, globe, opponentWise);
                 if(mx < currentScore){
+                    bestAction = new ArrayList<>();
                     mx = currentScore;
-                    for(Command command: node.Actions){
-                        this.bestActions.add(command);
-                    }
-                    this.bestState = node.State.clone();
+                    bestAction.addAll(node.Actions);
                 }
             }
         }
+        return bestAction;
     }
-
 }
