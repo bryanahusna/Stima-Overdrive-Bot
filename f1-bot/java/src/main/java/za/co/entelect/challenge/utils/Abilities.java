@@ -4,6 +4,8 @@ import za.co.entelect.challenge.command.*;
 
 public class Abilities {
     // NORMAL COMMANDS
+
+
     public final static Command ACCELERATE = new AccelerateCommand();
     public final static Command BOOST = new BoostCommand();
     public final static Command DECELERATE = new DecelerateCommand();

@@ -1,6 +1,7 @@
 package za.co.entelect.challenge.utils;
 
-import za.co.entelect.challenge.command.Command;
+import za.co.entelect.challenge.command.*;
+import za.co.entelect.challenge.enums.Direction;
 import za.co.entelect.challenge.enums.Terrain;
 import za.co.entelect.challenge.globalentities.GlobalState;
 import za.co.entelect.challenge.globalentities.Map;
@@ -16,7 +17,36 @@ public class LogState {
     public LogState(GlobalState prevState, GlobalState currentState, Command action) {
         this.prevState = prevState;
         this.currentState = currentState;
-        this.action = action;
+        if(action instanceof TweetCommand){
+            this.action = new TweetCommand(((TweetCommand) action).block, ((TweetCommand) action).lane);
+        }
+        else if(action instanceof AccelerateCommand){
+            this.action = new AccelerateCommand();
+        }
+        else if(action instanceof BoostCommand){
+            this.action = new BoostCommand();
+        }
+        else if(action instanceof ChangeLaneCommand){
+            this.action = new ChangeLaneCommand(((ChangeLaneCommand) action).direction.lane);
+        }
+        else if(action instanceof DecelerateCommand){
+            this.action = new DecelerateCommand();
+        }
+        else if(action instanceof DoNothingCommand){
+            this.action = new DoNothingCommand();
+        }
+        else if(action instanceof EmpCommand){
+            this.action = new EmpCommand();
+        }
+        else if(action instanceof FixCommand){
+            this.action = new FixCommand();
+        }
+        else if(action instanceof LizardCommand){
+            this.action = new LizardCommand();
+        }
+        else if(action instanceof OilCommand){
+            this.action = new OilCommand();
+        }
     }
 
     public Command calcOpponentCommand(Map globe) {

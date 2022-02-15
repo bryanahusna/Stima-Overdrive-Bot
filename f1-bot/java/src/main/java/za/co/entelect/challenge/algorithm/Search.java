@@ -72,7 +72,10 @@ public class Search {
             double currentScore;
             for (int i=0; i<this.candidateActions.size(); i++){
                 Node node = this.candidateActions.get(i);
+                //node.print();
                 currentScore = Scoring.scorePlayer(node, state, globe, depthOpp);
+                //System.out.println("SCORE : " + currentScore);
+                //node.State.player.printAll();
                 if(mx < currentScore){
                     idmx = i;
                     mx = currentScore;

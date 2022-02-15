@@ -66,7 +66,7 @@ public class Scoring {
         double score = 0;
         Player initialPlayer;
         Player finalPlayer;
-        if(opponentWise) {
+        if(!opponentWise) {
             initialPlayer = initialState.player;
             finalPlayer = finalState.player;
         }

@@ -4,7 +4,7 @@ import za.co.entelect.challenge.enums.Direction;
 
 public class ChangeLaneCommand implements Command {
 
-    private Direction direction;
+    public Direction direction;
 
     public ChangeLaneCommand(int laneIndicator) {
         if (laneIndicator == 1) {

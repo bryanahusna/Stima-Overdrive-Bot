@@ -3,6 +3,7 @@ package za.co.entelect.challenge;
 import com.google.gson.Gson;
 import za.co.entelect.challenge.algorithm.Search;
 import za.co.entelect.challenge.command.Command;
+import za.co.entelect.challenge.command.TweetCommand;
 import za.co.entelect.challenge.entities.Car;
 import za.co.entelect.challenge.entities.GameState;
 import za.co.entelect.challenge.enums.Terrain;
@@ -40,7 +41,7 @@ public class Bot {
     }
 
     public void takeRound(GameState gameState, Command command) {
-        GlobalState prevState = this.globalState;
+        GlobalState prevState = this.globalState.clone();
         this.gameState = gameState;
         this.myCar = gameState.player;
         this.opponent = gameState.opponent;
@@ -97,8 +98,10 @@ public class Bot {
 
                 GameState gameState = gson.fromJson(state, GameState.class);
 
-//                if(gameState.state == State.USED_TWEET){
+//                if(prevCommand != null){
+//                    if(prevCommand instanceof TweetCommand){
 //
+//                    }
 //                }
 
                 takeRound(gameState, prevCommand);
