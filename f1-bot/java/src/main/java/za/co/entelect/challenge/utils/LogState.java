@@ -60,9 +60,7 @@ public class LogState {
         int y = this.prevState.enemy.pos_y;
 
         if (this.prevState.enemy.nBoost == 1) {
-            this.prevState.enemy.speed = Supports.getCurrentSpeedLimit(
-                    this.prevState.enemy.damage
-            );
+            this.prevState.enemy.speed = Supports.getCurrentSpeedLimit(this.prevState.enemy.damage);
         }
         int speed = this.prevState.enemy.speed;
 
@@ -73,26 +71,12 @@ public class LogState {
         int offsetX = afterX - x;
         int offsetY = afterY - y;
 
-        List<Command> validActions = Actions.validAction(this.prevState.enemy);
-        for (Command oppCmd : validActions) {
-            GlobalState sim = Actions.simulateActions(cmd, oppCmd, this.prevState, globe);
-            if (sim.enemy.pos_x == afterX
-                    && sim.enemy.pos_y == afterY
-                    && sim.enemy.speed == afterSpeed) {
-                return oppCmd;
-            }
-        }
-
         if (offsetY != 0) {
             return offsetY < 0 ? Abilities.TURN_LEFT : Abilities.TURN_RIGHT;
         }
-
-        if (offsetX == 0 && speed == afterSpeed
-            // && offsetY == 0
-        ) {
+        if (offsetX == 0 && speed == afterSpeed) {
             return Abilities.FIX;
         }
-
         if (offsetX > speed) {
             if (offsetX <= Supports.getAcceleratedSpeed(speed, 0)) {
                 return Abilities.ACCELERATE;
@@ -100,11 +84,9 @@ public class LogState {
                 return Abilities.BOOST;
             }
         }
-
         if (offsetX == Supports.getDeceleratedSpeed(speed, false, 0)) {
             return Abilities.DECELERATE;
         }
-
         if (offsetX == speed) {
             int _y = afterY;
             int _speed = speed;
@@ -124,6 +106,18 @@ public class LogState {
             _speed = Math.max(3, _speed);
             return _speed < afterSpeed ? Abilities.LIZARD : Abilities.DO_NOTHING;
         }
+
+        List<Command> validActions = Actions.validAction(this.prevState.enemy);
+        for (Command oppCmd : validActions) {
+            GlobalState sim = Actions.simulateActions(cmd, oppCmd, this.prevState, globe);
+            if (sim.enemy.pos_x == afterX
+                    && sim.enemy.pos_y == afterY
+                    && sim.enemy.speed == afterSpeed) {
+                return oppCmd;
+            }
+        }
+
+
 
         return null;
     }

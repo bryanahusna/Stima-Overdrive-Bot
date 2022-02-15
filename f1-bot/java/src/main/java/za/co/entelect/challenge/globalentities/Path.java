@@ -57,11 +57,6 @@ public class Path {
             this.v = p.speed;
         }
     }
-    public void updatePlayer(Player P){
-        P.pos_x += this.dx;
-        P.pos_y += this.dy;
-        P.speed = this.v;
-    }
 
 
     public void resolveCollision(Path other, Command cmd, Command cmdOther){

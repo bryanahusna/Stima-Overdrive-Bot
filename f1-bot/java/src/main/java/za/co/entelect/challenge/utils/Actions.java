@@ -1,9 +1,7 @@
 package za.co.entelect.challenge.utils;
 
 
-import jdk.javadoc.internal.doclets.toolkit.util.Utils;
 import za.co.entelect.challenge.algorithm.OpponentMove;
-import za.co.entelect.challenge.algorithm.Search;
 import za.co.entelect.challenge.command.Command;
 import za.co.entelect.challenge.globalentities.*;
 
@@ -49,11 +47,11 @@ public class Actions {
         // cybertruck
         Resource PlayerCyber = new Resource(globe, PlayerPath, PlayerAction, true);
         Resource EnemyCyber = new Resource(globe, EnemyPath, EnemyAction, true);
-        for(Utils.Pair<Integer, Integer> P: PlayerCyber.cyberPos){
-            ret.deleteCyberTruck(P.first, P.second);
+        for(Tile P: PlayerCyber.cyberPos){
+            ret.deleteCyberTruck(P.x, P.y);
         }
-        for(Utils.Pair<Integer, Integer> P: EnemyCyber.cyberPos){
-            ret.deleteCyberTruck(P.first, P.second);
+        for(Tile P: EnemyCyber.cyberPos){
+            ret.deleteCyberTruck(P.x, P.y);
         }
         // collision resolve
         PlayerPath.resolveCollision(EnemyPath, PlayerAction, EnemyAction);

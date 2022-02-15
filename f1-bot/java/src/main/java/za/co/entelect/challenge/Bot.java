@@ -42,14 +42,28 @@ public class Bot {
 
     public void takeRound(GameState gameState, Command command) {
         GlobalState prevState = this.globalState.clone();
+
         this.gameState = gameState;
         this.myCar = gameState.player;
         this.opponent = gameState.opponent;
         this.currentSpeedLimit = Supports.getCurrentSpeedLimit(gameState.player.damage);
-        //this.globalState.map.updateNewRound(gameState);
         this.globalMap.updateNewRound(gameState);
         this.globalState.player.update(gameState, 1);
         this.globalState.enemy.update(gameState, 2);
+
+        if(command != null){
+            if(command instanceof TweetCommand){
+                if(prevState.isSomethingDeleted(1)){
+                    globalMap.map[prevState.pref_x1-1][prevState.pref_y1-1].deleteCybertruck();
+                }
+                else if(prevState.isSomethingDeleted(2)){
+                    globalMap.map[prevState.pref_x2-1][prevState.pref_y2-1].deleteCybertruck();
+                }
+                globalMap.map[((TweetCommand) command).block-1][((TweetCommand) command).lane-1].setCybertruck();
+                globalState.setCyberTruck(((TweetCommand) command).block, ((TweetCommand) command).lane);
+            }
+        }
+
         if (command != null) {
             LogState transition = new LogState(prevState, this.globalState, command);
             this.log.add(transition);
@@ -98,11 +112,7 @@ public class Bot {
 
                 GameState gameState = gson.fromJson(state, GameState.class);
 
-//                if(prevCommand != null){
-//                    if(prevCommand instanceof TweetCommand){
-//
-//                    }
-//                }
+
 
                 takeRound(gameState, prevCommand);
                 List<Command> commands = searchBestAction(myCar.speed);

@@ -1,6 +1,5 @@
 package za.co.entelect.challenge.globalentities;
 
-import jdk.javadoc.internal.doclets.toolkit.util.Utils;
 import za.co.entelect.challenge.command.Command;
 import za.co.entelect.challenge.enums.Terrain;
 import za.co.entelect.challenge.utils.Supports;
@@ -17,7 +16,7 @@ public class Resource {
     public int damage = 0;
     public int score = 0;
     public int bad = 0;
-    public List<Utils.Pair<Integer, Integer>> cyberPos = new ArrayList<>();
+    public List<Tile> cyberPos = new ArrayList<>();
 
     public void getResource(Tile tile, Path path){
         Tile T = tile.clone();
@@ -72,7 +71,7 @@ public class Resource {
             for (Tile T : paths) {
                 if (T.layer == Terrain.CYBERTRUCK) {
                     this.givePenalty(T, path);
-                    this.cyberPos.add(new Utils.Pair<>(T.x, T.y));
+                    this.cyberPos.add(T.clone());
                     break;
                 }
             }

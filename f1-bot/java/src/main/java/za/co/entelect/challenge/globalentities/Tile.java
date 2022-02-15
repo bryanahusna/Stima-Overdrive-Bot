@@ -24,20 +24,6 @@ public class Tile {
         return t;
     }
 
-    /** Kalau layernya tidak EMPTY, kembalikan layer. Kalau layer EMPTY, kembalikan tile */
-    public Terrain getType() {
-        if (this.layer != Terrain.EMPTY) {
-            return this.layer;
-        } else {
-            return this.tile;
-        }
-    }
-
-    public void set(Terrain tile, Terrain layer) {
-        this.tile = tile;
-        this.layer = layer;
-    }
-
     public boolean isBad(){
         if(this.layer==Terrain.CYBERTRUCK){
             return true;
@@ -55,16 +41,6 @@ public class Tile {
         Tile t = (Tile) o;
 
         return t.tile == this.tile && t.layer == this.layer;
-    }
-
-    // Jika keduanya mempunyai layer yang bukan EMPTY, bandingkan layernya
-    // Jika layer keduanya EMPTY, bandingkan tilenya
-    public boolean isEqualsEff(Tile t) {
-        if (t.layer != Terrain.EMPTY && this.layer != Terrain.EMPTY) {
-            return t.layer == this.layer;
-        }
-
-        return t.tile == this.tile;
     }
 
     public void setCybertruck() {

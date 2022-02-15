@@ -7,8 +7,6 @@ import za.co.entelect.challenge.entities.Lane;
 import za.co.entelect.challenge.enums.Terrain;
 
 public class Map {
-    // isi entire map disini
-    // refactor it if necessary
     private final int x_size= 1500;
     private final int y_size = 4;
     public int nxeff;
@@ -69,29 +67,16 @@ public class Map {
         this.nxeff = lanes.get(0)[lanes.get(0).length - 1].position.block;
     }
 
-    public void clearMap(int startX, int finalX){
-        for(int i = startX; i <= finalX; i++){
-            for(int j = 1; j <= y_size; j++){
-                if(this.map[i - 1][j - 1].getType() == Terrain.CYBERTRUCK){
-                    this.map[i - 1][j - 1].layer = Terrain.EMPTY;
-                } else if(this.map[i - 1][j - 1].getType() == Terrain.OIL_SPILL){
-                    this.map[i - 1][j - 1].layer = Terrain.EMPTY;
-                    this.map[i - 1][j - 1].tile = Terrain.EMPTY;
+    public void createSimulation(int xi, int xf){
+        for(int x=xi-1; x<xf; x++){
+            for(int y=0; y<y_size; y++){
+                if(this.map[x][y].layer == Terrain.CYBERTRUCK){
+                    this.map[x][y].layer = this.map[x][y].tile;
+                }
+                else if(this.map[x][y].tile == Terrain.OIL_SPILL){
+                    this.map[x][y].tile = Terrain.EMPTY;
                 }
             }
         }
     }
-
-//    public static void clearMap(GlobalState state, int startX, int finalX){
-//        for(int i = startX; i <= finalX; i++){
-//            for(int j = 1; j <= 4; j++){
-//                if(state.map.map[i - 1][j - 1].getType() == Terrain.CYBERTRUCK){
-//                    state.map.map[i - 1][j - 1].layer = Terrain.EMPTY;
-//                } else if(state.map.map[i - 1][j - 1].getType() == Terrain.OIL_SPILL){
-//                    state.map.map[i - 1][j - 1].layer = Terrain.EMPTY;
-//                    state.map.map[i - 1][j - 1].tile = Terrain.EMPTY;
-//                }
-//            }
-//        }
-//    }
 }

@@ -3,13 +3,11 @@ package za.co.entelect.challenge.globalentities;
 import za.co.entelect.challenge.command.Command;
 import za.co.entelect.challenge.entities.GameState;
 import za.co.entelect.challenge.enums.PowerUps;
-import za.co.entelect.challenge.enums.Terrain;
 import za.co.entelect.challenge.utils.Abilities;
 import za.co.entelect.challenge.utils.Actions;
 import za.co.entelect.challenge.utils.LogState;
 import za.co.entelect.challenge.utils.Supports;
 
-import java.util.List;
 
 public class Player {
     public int id;
@@ -77,16 +75,20 @@ public class Player {
     }
 
     public void update(LogState state, Map globe) {
-        // Update cuma dipake buat opponent
-//        if (state.prevState.enemy.pos_x >= state.prevState.player.pos_x) {
-//            // CLEAN MAP
-//            state.prevS.clearMap(state.prevState.enemy.pos_x, state.currentState.enemy.pos_x);
-//        }
 
-        /* Cek kalo misalnya kita ketinggalan / salah prediksi lawan.
-         *  Kalo offset / speed akhir mereka lebih daripada yang seharusnya,
-         *  Kurangi damage sampai logic valid
-         * */
+//        Cek kalo misalnya kita ketinggalan / salah prediksi lawan.
+//        Kalo offset / speed akhir mereka lebih daripada yang seharusnya,
+//        Kurangi damage sampai logic valid
+
+
+//        bikin simulasi dulu
+        Map sim = globe.clone();
+        int x_enemy = state.prevState.enemy.pos_x;
+        int x_player = state.prevState.player.pos_x;
+        int xf_enemy = state.currentState.enemy.pos_x;
+        if(x_enemy <= x_player){
+            sim.createSimulation(x_enemy, xf_enemy);
+        }
         int offsetX = state.currentState.enemy.pos_x - state.prevState.enemy.pos_x
                 + Math.abs(state.prevState.enemy.pos_y - state.currentState.enemy.pos_y);
         int oppSpeed = state.currentState.enemy.speed;
@@ -97,11 +99,11 @@ public class Player {
         }
         state.prevState.enemy.damage = damage; // Update damage
 
-        /* Hitung COMMAND lawan */
-        Command cmd = state.calcOpponentCommand(globe);
+//        Hitung COMMAND lawan
+        Command cmd = state.calcOpponentCommand(sim);
         Player opp;
         if (cmd == null) {
-            // either EMP-ed, atau emg algonya ga jalan (tapi harusnya less likely sih
+//        either EMP-ed, atau emg algonya ga jalan (tapi harusnya less likely sih)
             opp = state.prevState.enemy.clone();
             this.boost = opp.boost;
             this.oil = opp.oil;
@@ -113,11 +115,11 @@ public class Player {
             this.score = opp.score;
         }
         else{
-            GlobalState predOppNS = Actions.simulateActions(
+            GlobalState predResource = Actions.simulateActions(
                     Abilities.convertOffensive(state.action),
-                    cmd, state.prevState, globe
+                    cmd, state.prevState, sim
             );
-            opp = predOppNS.enemy.clone();
+            opp = predResource.enemy.clone();
             this.oil = opp.oil;
             this.tweet = opp.tweet;
             this.emp = opp.emp;
@@ -126,7 +128,12 @@ public class Player {
             this.damage = opp.damage;
             this.lizard = Math.max(opp.lizard, 0);
             this.boost = Math.max(opp.boost, 0);
-
+            if(predResource.isSomethingDeleted(1)){
+                globe.map[predResource.pref_x1-1][predResource.pref_y1-1].deleteCybertruck();
+            }
+            else if(predResource.isSomethingDeleted(2)){
+                globe.map[predResource.pref_x2-1][predResource.pref_y2-1].deleteCybertruck();
+            }
         }
 
 
