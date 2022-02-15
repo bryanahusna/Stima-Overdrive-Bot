@@ -24,13 +24,13 @@ import za.co.entelect.challenge.utils.Supports;
     Return INVALID_COMMAND jika ada command yang tidak valid (misal menggunakan boost ketika tidak punya boost) */
 public class Scoring {
     //public static final float INVALID_COMMAND = -9999999;
-    public List<Command> commands;
-    public GameState gameState;
-
-    public Scoring(List<Command> commands, GameState gameState){
-        this.gameState = gameState;
-        this.commands = commands;
-    }
+//    public List<Command> commands;
+//    public GameState gameState;
+//
+//    public Scoring(List<Command> commands, GameState gameState){
+//        this.gameState = gameState;
+//        this.commands = commands;
+//    }
 
 //    public float calculate(){
 //        Car initialCar = gameState.player;
@@ -45,29 +45,40 @@ public class Scoring {
 //        return multiplyWeights(initialCar, currentCar);
 //    }
 
-    public static double score(Search.Node n, GlobalState initialState, Map globe, boolean opponentWise){
-        double score = multiplyWeights(initialState, n.State);
-        if(!opponentWise) {
-            GlobalState immediateNextState = Actions.simulateActions(n.Actions.get(0), Actions.predictAction(initialState.clone(), globe), initialState, globe);
-            score += multiplyWeights(initialState, immediateNextState);
-        }
-        else{
-            GlobalState immediateNextState = Actions.simulateActions(n.Actions.get(0), Abilities.ACCELERATE, initialState, globe);
-            score += multiplyWeights(initialState, immediateNextState);
-        }
+    public static double scorePlayer(Node n, GlobalState initialState, Map globe, int depthOpp){
+        double score = multiplyWeights(initialState, n.State, false);
+        GlobalState immediateNextState = Actions.simulateActions(n.Actions.get(0), Actions.predictAction(initialState.clone(),  globe, depthOpp), initialState, globe);
+        score += Weights.AFTERSTATE * (multiplyWeights(n.State, immediateNextState, false));
+
+        return score;
+    }
+
+    public static double scoreEnemy(Node n, GlobalState initialState, Map globe){
+        double score = multiplyWeights(initialState, n.State, true);
+        GlobalState immediateNextState = Actions.simulateActions(Abilities.ACCELERATE, n.Actions.get(0), initialState, globe);
+        score += Weights.AFTERSTATE * (multiplyWeights(n.State, immediateNextState, true));
+
         return score;
     }
 
     /* Menghitung skor berdasarkan finalState dan initialState */
-    public static double multiplyWeights(GlobalState initialState, GlobalState finalState){
+    public static double multiplyWeights(GlobalState initialState, GlobalState finalState, boolean opponentWise){
         double score = 0;
-        Player initialPlayer = initialState.player;
-        Player finalPlayer = finalState.player;
+        Player initialPlayer;
+        Player finalPlayer;
+        if(opponentWise) {
+            initialPlayer = initialState.player;
+            finalPlayer = finalState.player;
+        }
+        else{
+            initialPlayer = initialState.enemy;
+            finalPlayer = finalState.enemy;
+        }
 
         score += (finalPlayer.pos_x - initialPlayer.pos_x) * Weights.POSITION;
         score += (finalPlayer.speed - initialPlayer.speed) * Weights.SPEED;
         score += (finalPlayer.damage - initialPlayer.damage) * Weights.DAMAGE;
-
+        score += (finalPlayer.score - initialPlayer.score) * Weights.SCORE;
         score += (finalPlayer.boost - initialPlayer.boost) * Weights.BOOST;
         score += (finalPlayer.oil - initialPlayer.oil) * Weights.OIL;
         score += (finalPlayer.tweet - initialPlayer.tweet) * Weights.TWEET;

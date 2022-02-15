@@ -43,7 +43,7 @@ public class LogState {
         int offsetX = afterX - x;
         int offsetY = afterY - y;
 
-        List<Command> validActions = Actions.validAction(this.currentState.switch_());
+        List<Command> validActions = Actions.validAction(this.prevState.enemy);
         for (Command oppCmd : validActions) {
             GlobalState sim = Actions.simulateActions(cmd, oppCmd, this.prevState, globe);
             if (sim.enemy.pos_x == afterX

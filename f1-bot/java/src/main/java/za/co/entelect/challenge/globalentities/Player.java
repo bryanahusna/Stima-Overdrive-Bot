@@ -103,17 +103,13 @@ public class Player {
         if (cmd == null) {
             // either EMP-ed, atau emg algonya ga jalan (tapi harusnya less likely sih
             opp = state.prevState.enemy.clone();
-            this.id = opp.id;
-            this.pos_x = opp.pos_x;
-            this.pos_y = opp.pos_y;
-            this.speed = opp.speed;
-            this.damage = opp.damage;
             this.boost = opp.boost;
             this.oil = opp.oil;
             this.tweet = opp.tweet;
             this.lizard = opp.lizard;
             this.emp = opp.emp;
             this.nBoost = opp.nBoost;
+            this.damage = opp.damage;
             this.score = opp.score;
         }
         else{
@@ -121,23 +117,16 @@ public class Player {
                     Abilities.convertOffensive(state.action),
                     cmd, state.prevState, globe
             );
-            opp = predOppNS.enemy;
-            opp.lizard = Math.max(opp.lizard, 0);
-            opp.boost = Math.max(opp.boost, 0);
-
-            // Move calculated opp to this
-            this.id = opp.id;
-            this.pos_x = opp.pos_x;
-            this.pos_y = opp.pos_y;
-            this.speed = opp.speed;
-            this.damage = opp.damage;
-            this.boost = opp.boost;
+            opp = predOppNS.enemy.clone();
             this.oil = opp.oil;
             this.tweet = opp.tweet;
-            this.lizard = opp.lizard;
             this.emp = opp.emp;
             this.nBoost = opp.nBoost;
             this.score = opp.score;
+            this.damage = opp.damage;
+            this.lizard = Math.max(opp.lizard, 0);
+            this.boost = Math.max(opp.boost, 0);
+
         }
 
 

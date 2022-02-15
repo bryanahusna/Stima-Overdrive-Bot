@@ -46,6 +46,7 @@ public class Path {
         }
         else if(Supports.isCommandEqual(cmd, Abilities.DO_NOTHING)){
             this.dx += p.speed;
+            this.v = p.speed;
         }
         else if(Supports.isCommandEqual(cmd, Abilities.BOOST)){
             this.v = Supports.getBoostedSpeed(p.damage);

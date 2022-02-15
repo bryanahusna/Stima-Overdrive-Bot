@@ -2,6 +2,7 @@ package za.co.entelect.challenge.utils;
 
 
 import jdk.javadoc.internal.doclets.toolkit.util.Utils;
+import za.co.entelect.challenge.algorithm.OpponentMove;
 import za.co.entelect.challenge.algorithm.Search;
 import za.co.entelect.challenge.command.Command;
 import za.co.entelect.challenge.globalentities.*;
@@ -73,32 +74,35 @@ public class Actions {
         return ret;
     }
 
-    public static List<Command> validAction(GlobalState state) {
+    public static List<Command> validAction(Player player) {
         List<Command> ret = new ArrayList<>();
-        if (state.player.speed > 0) {
+        if (player.speed > 0) {
             ret.add(Abilities.DO_NOTHING);
             ret.add(Abilities.DECELERATE);
-            if (state.player.pos_y != 1) {
+            if (player.pos_y != 1) {
                 ret.add(Abilities.TURN_LEFT);
             }
-            if (state.player.pos_y != 4) {
+            if (player.pos_y != 4) {
                 ret.add(Abilities.TURN_RIGHT);
             }
-            if (state.player.lizard > 0) {
+            if (player.lizard > 0) {
                 ret.add(Abilities.LIZARD);
             }
         }
-        if (state.player.speed < Supports.getCurrentSpeedLimit(state.player.damage)) {
+        if (player.speed < Supports.getCurrentSpeedLimit(player.damage)) {
             ret.add(Abilities.ACCELERATE);
         }
-        if (state.player.boost > 0 && state.player.nBoost <= 1) {
+        if (player.boost > 0 && player.nBoost <= 1) {
             ret.add(Abilities.BOOST);
+        }
+        if(player.damage > 0){
+            ret.add(Abilities.FIX);
         }
         return ret;
     }
 
-    public static Command predictAction(GlobalState state, Map globe) {
-        if (state.enemy.pos_x > globe.nxeff) {
+    public static Command predictAction(GlobalState state, Map globe, int depth) {
+        if (depth==0||state.enemy.pos_x > globe.nxeff) {
             return Abilities.ACCELERATE;
         }
 
@@ -107,16 +111,15 @@ public class Actions {
                 && state.enemy.speed == 0) {
             return Abilities.DO_NOTHING;
         }
-
-        return (new Search(state.switch_(),true, globe)).findBestAction(state.switch_(), globe,true).get(0);
+        return (new OpponentMove(state, globe, depth)).bestMove(state, globe).get(0);
     }
 
     public static Command bestAttack(List<Command> Commands, GlobalState curState, Map globe) {
         // offensive move
-        GlobalState state1 = Actions.simulateActions(Commands.get(0), Actions.predictAction(curState, globe), curState, globe);
+        GlobalState state1 = Actions.simulateActions(Commands.get(0), Actions.predictAction(curState, globe, 3), curState, globe);
         GlobalState state2 = null;
         if (Commands.size() > 2) {
-            state2 = Actions.simulateActions(Commands.get(1), Actions.predictAction(state1, globe), state1, globe);
+            state2 = Actions.simulateActions(Commands.get(1), Actions.predictAction(state1, globe, 3), state1, globe);
         }
         int x = curState.player.pos_x;
         int x1 = curState.enemy.pos_x;
@@ -141,7 +144,7 @@ public class Actions {
         } else if (curState.player.tweet > 0) {
             if (x > x1 && state2 != null) {
                 // kalau abis round ini prediksinya FIX, ga usah simpen cybertruck
-                if (!Supports.isCommandEqual(Actions.predictAction(state1, globe), Abilities.FIX)) {
+                if (!Supports.isCommandEqual(Actions.predictAction(state1, globe, 3), Abilities.FIX)) {
                     // simpen agak jauh dari lawan, biar kasus kalau abs(x-x1)=1 ga terjadi
                     // hati-hati juga, bisa jadi lawan nge-EMP kita pas placing cybertruck
                     int cyber_x = state1.enemy.pos_x + 2;

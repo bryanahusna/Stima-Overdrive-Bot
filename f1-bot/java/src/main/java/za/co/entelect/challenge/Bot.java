@@ -64,6 +64,25 @@ public class Bot {
         }
     }
 
+    public List<Command> searchBestAction(int v){
+        Search Candidates;
+        List<Command> ret;
+        switch(v){
+            case 0:
+            case 3:
+                Candidates = new Search(this.globalState, globalMap, 4, 0);
+                ret = Candidates.bestAction(this.globalState, globalMap, 0);
+                break;
+            case 6:
+                Candidates = new Search(this.globalState, globalMap, 3, 1);
+                ret = Candidates.bestAction(this.globalState, globalMap, 1);
+                break;
+            default:
+                Candidates = new Search(this.globalState, globalMap, 3, 2);
+                ret = Candidates.bestAction(this.globalState, globalMap, 2);
+        }
+        return ret;
+    }
 
     public void run() {
         Scanner sc = new Scanner(System.in);
@@ -83,12 +102,10 @@ public class Bot {
 //                }
 
                 takeRound(gameState, prevCommand);
-                Search Candidates = new Search(this.globalState,false, globalMap);
-                List<Command> commands = Candidates.findBestAction(globalState, globalMap, false);
+                List<Command> commands = searchBestAction(myCar.speed);
                 Command command = commands.get(0);
                 if (Supports.isCommandEqual(command, Abilities.DO_NOTHING)) {
                     command = Actions.bestAttack(commands, this.globalState, globalMap);
-                    //command = Candidates.bestActions.get(0);
                     if (Supports.isCommandEqual(command, Abilities.OIL)) {
                         this.globalMap.setTile(myCar.position.block, myCar.position.lane, Terrain.OIL_SPILL);
                     }

@@ -31,16 +31,6 @@ public class GlobalState {
         return clone;
     }
 
-    public GlobalState switch_() {
-        // Mengembalikan state baru yang menukar posisi player dan enemy
-        GlobalState tmpState = this.clone();
-        Player tmpPlayer = tmpState.player.clone();
-        tmpState.player = tmpState.enemy.clone();
-        tmpState.enemy = tmpPlayer;
-
-        return tmpState;
-    }
-
     public void deleteCyberTruck(int x, int y){
         if(this.cyber_x1==x&&this.cyber_y1==y){
             this.cyber_x1 = 0;
