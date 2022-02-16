@@ -4,8 +4,7 @@ package za.co.entelect.challenge.algorithm;
 import za.co.entelect.challenge.command.Command;
 import za.co.entelect.challenge.globalentities.GlobalState;
 import za.co.entelect.challenge.globalentities.Map;
-import za.co.entelect.challenge.utils.Abilities;
-import za.co.entelect.challenge.utils.Actions;
+import za.co.entelect.challenge.constants.utils.Actions;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -13,6 +12,7 @@ import java.util.List;
 import java.util.Queue;
 
 public class Search {
+    /* Search tree untuk kita */
     public List<Node> candidateActions;
     private Queue<Node> q;
 
@@ -26,29 +26,32 @@ public class Search {
             if (p.Actions.size() == depth) {
                 Candidates.add(p);
             }
-            if(p.Actions.size()<depth) {
+            if (p.Actions.size() < depth) {
                 for (Command newCmd : Actions.validAction(p.State.player)) {
                     Node curNode = p.clone(p.State.clone());
                     curNode.Actions.add(newCmd);
-                    curNode.State = Actions.simulateActions(newCmd, Actions.predictAction(p.State.clone(), globe, depthOpp), p.State.clone(), globe);
-                    if(curNode.State.player.pos_x >= globe.nxeff){
+                    curNode.State = Actions.simulateActions(
+                            newCmd,
+                            Actions.predictAction(p.State.clone(), globe, depthOpp),
+                            p.State.clone(),
+                            globe);
+                    if (curNode.State.player.pos_x >= globe.nxeff) {
                         Candidates.add(curNode);
-                    }
-                    else {
+                    } else {
                         q.add(curNode);
                     }
                 }
             }
         }
-        for(int i=0; i<Candidates.size(); i++){
-            if(Candidates.get(i).Actions.size()!=0){
-                this.candidateActions.add(Candidates.get(i));
+        for (Node candidate : Candidates) {
+            if (candidate.Actions.size() != 0) {
+                this.candidateActions.add(candidate);
             }
         }
-        //this.bestActions.addAll(Candidates.get(0).Actions);
+
     }
-    public List<Command> bestAction(GlobalState state, Map globe, int depthOpp){
-        List<Command> bestAction = new ArrayList<>();
+
+    public List<Command> bestAction(GlobalState state, Map globe, int depthOpp) {
         int idmx = -1;
         boolean finalGame = false;
         for (Node node : this.candidateActions) {
@@ -59,30 +62,25 @@ public class Search {
         }
         if (finalGame) {
             int mx = Integer.MIN_VALUE;
-            for (int i=0; i<this.candidateActions.size(); i++) {
+            for (int i = 0; i < this.candidateActions.size(); i++) {
                 Node node = this.candidateActions.get(i);
                 if (mx < node.State.player.speed && node.State.player.pos_x >= 1500) {
                     idmx = i;
                     mx = node.State.player.speed;
                 }
             }
-        }
-        else{
-            Double mx = -Double.MAX_VALUE;
+        } else {
+            double mx = -Double.MAX_VALUE;
             double currentScore;
-            for (int i=0; i<this.candidateActions.size(); i++){
+            for (int i = 0; i < this.candidateActions.size(); i++) {
                 Node node = this.candidateActions.get(i);
-                //node.print();
                 currentScore = Scoring.scorePlayer(node, state, globe, depthOpp);
-                //System.out.println("SCORE : " + currentScore);
-                //node.State.player.printAll();
-                if(mx < currentScore){
+                if (mx < currentScore) {
                     idmx = i;
                     mx = currentScore;
                 }
             }
         }
-        bestAction.addAll(this.candidateActions.get(idmx).Actions);
-        return bestAction;
+        return new ArrayList<>(this.candidateActions.get(idmx).Actions);
     }
 }

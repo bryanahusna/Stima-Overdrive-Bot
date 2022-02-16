@@ -1,4 +1,4 @@
-package za.co.entelect.challenge.utils;
+package za.co.entelect.challenge.constants.utils;
 
 import za.co.entelect.challenge.command.*;
 
@@ -35,29 +35,22 @@ public class Abilities {
         return cmd;
     }
 
-    public static void print(Command command){
-        if(Supports.isCommandEqual(command, Abilities.ACCELERATE)){
+    public static void print(Command command) {
+        if (Supports.isCommandEqual(command, Abilities.ACCELERATE)) {
             System.out.print(" ACC ");
-        }
-        else if(Supports.isCommandEqual(command, Abilities.DECELERATE)){
+        } else if (Supports.isCommandEqual(command, Abilities.DECELERATE)) {
             System.out.print(" DCC ");
-        }
-        else if(Supports.isCommandEqual(command, Abilities.BOOST)){
+        } else if (Supports.isCommandEqual(command, Abilities.BOOST)) {
             System.out.print(" BOOST ");
-        }
-        else if(Supports.isCommandEqual(command, Abilities.DO_NOTHING)){
+        } else if (Supports.isCommandEqual(command, Abilities.DO_NOTHING)) {
             System.out.print(" NOTHING ");
-        }
-        else if(Supports.isCommandEqual(command, Abilities.LIZARD)){
+        } else if (Supports.isCommandEqual(command, Abilities.LIZARD)) {
             System.out.print(" LIZARD ");
-        }
-        else if(Supports.isCommandEqual(command, Abilities.FIX)){
+        } else if (Supports.isCommandEqual(command, Abilities.FIX)) {
             System.out.print(" FIX ");
-        }
-        else if(Supports.isCommandEqual(command, Abilities.TURN_LEFT)){
+        } else if (Supports.isCommandEqual(command, Abilities.TURN_LEFT)) {
             System.out.print(" TURN_LEFT ");
-        }
-        else if(Supports.isCommandEqual(command, Abilities.TURN_RIGHT)){
+        } else if (Supports.isCommandEqual(command, Abilities.TURN_RIGHT)) {
             System.out.print(" TURN_RIGHT ");
         }
     }

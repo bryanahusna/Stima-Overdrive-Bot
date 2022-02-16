@@ -1,27 +1,34 @@
 package za.co.entelect.challenge.globalentities;
 
 public class GlobalState {
+    /* Menyimpan player dan enemy, juga posisi cybertruck.
+     * Atribut diupdate setiap round.
+     * Dipakai juga untuk mensimulasikan command. */
     public Player player;
     public Player enemy;
+    // Koordinat cybertruck 1 sebelum di-update
     public int pref_x1;
-    public int pref_x2;
     public int pref_y1;
+    // Koordinat cybertruck 2 sebelum di-update
+    public int pref_x2;
     public int pref_y2;
+    // Koordinat cybertruck 1 setelah di-update
     public int cyber_x1;
-    public int cyber_x2;
     public int cyber_y1;
+    // Koordinat cybertruck 1 setelah di-update
+    public int cyber_x2;
     public int cyber_y2;
 
     public GlobalState() {
         this.player = new Player(1);
         this.enemy = new Player(2);
         this.cyber_x1 = 0;
-        this.cyber_x2 = 0;
         this.cyber_y1 = 0;
+        this.cyber_x2 = 0;
         this.cyber_y2 = 0;
         this.pref_x1 = 0;
-        this.pref_x2 = 0;
         this.pref_y1 = 0;
+        this.pref_x2 = 0;
         this.pref_y2 = 0;
     }
 
@@ -40,25 +47,23 @@ public class GlobalState {
         return clone;
     }
 
-    public void deleteCyberTruck(int x, int y){
-        if(this.cyber_x1==x&&this.cyber_y1==y){
+    public void deleteCyberTruck(int x, int y) {
+        if (this.cyber_x1 == x && this.cyber_y1 == y) {
             this.cyber_x1 = 0;
             this.cyber_y1 = 0;
-        }
-        else if(this.cyber_x2==x&&this.cyber_y2==y){
+        } else if (this.cyber_x2 == x && this.cyber_y2 == y) {
             this.cyber_x2 = 0;
             this.cyber_y2 = 0;
         }
     }
 
-    public void setCyberTruck(int x, int y){
-        if(this.cyber_x1==0){
+    public void setCyberTruck(int x, int y) {
+        if (this.cyber_x1 == 0) {
             this.pref_x1 = x;
             this.pref_y1 = y;
             this.cyber_x1 = x;
             this.cyber_y1 = y;
-        }
-        else{
+        } else {
             this.pref_x2 = x;
             this.pref_y2 = y;
             this.cyber_x2 = x;
@@ -66,12 +71,12 @@ public class GlobalState {
         }
     }
 
-    public boolean isSomethingDeleted(int id){
-        if(id==1){
-            return this.pref_x1!=this.cyber_x1||this.pref_y1!=this.cyber_y1;
-        }
-        else {
-            return this.pref_x2!=this.cyber_x2||this.pref_y2!=this.cyber_y2;
+    public boolean isSomethingDeleted(int id) {
+        /* Mengecek jika cybertruck pindah */
+        if (id == 1) {
+            return this.pref_x1 != this.cyber_x1 || this.pref_y1 != this.cyber_y1;
+        } else {
+            return this.pref_x2 != this.cyber_x2 || this.pref_y2 != this.cyber_y2;
         }
     }
 }

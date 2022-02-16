@@ -9,10 +9,10 @@ import za.co.entelect.challenge.entities.GameState;
 import za.co.entelect.challenge.enums.Terrain;
 import za.co.entelect.challenge.globalentities.GlobalState;
 import za.co.entelect.challenge.globalentities.Map;
-import za.co.entelect.challenge.utils.Abilities;
-import za.co.entelect.challenge.utils.Actions;
-import za.co.entelect.challenge.utils.LogState;
-import za.co.entelect.challenge.utils.Supports;
+import za.co.entelect.challenge.constants.utils.Abilities;
+import za.co.entelect.challenge.constants.utils.Actions;
+import za.co.entelect.challenge.constants.utils.LogState;
+import za.co.entelect.challenge.constants.utils.Supports;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -25,65 +25,67 @@ import java.util.Scanner;
 public class Bot {
     private static final String ROUNDS_DIRECTORY = "rounds";
     private static final String STATE_FILE_NAME = "state.json";
-    public GlobalState globalState, curState;
-    public Queue<LogState> log;
+    /* Atribut bawaan */
     public GameState gameState;
     public Car opponent;
     public Car myCar;
+
+    /* Atribut tambahan */
+    public Queue<LogState> log;
+    public GlobalState prevState, curState;
     public int currentSpeedLimit;
     public Map globalMap;
 
-
     public Bot() {
-        this.globalState = new GlobalState();
+        this.prevState = new GlobalState();
         this.log = new LinkedList<>();
         this.globalMap = new Map();
     }
 
     public void takeRound(GameState gameState, Command command) {
-        this.curState = this.globalState.clone();
-
+        /* Meng-update atribut bot setiap round,
+        termasuk atribut tambahan */
+        this.curState = this.prevState.clone();
         this.gameState = gameState;
         this.myCar = gameState.player;
         this.opponent = gameState.opponent;
         this.currentSpeedLimit = Supports.getCurrentSpeedLimit(gameState.player.damage);
+
         this.globalMap.updateNewRound(gameState);
         this.curState.player.update(gameState, 1);
         this.curState.enemy.update(gameState, 2);
 
-
-
-        if(command != null){
-            if(command instanceof TweetCommand){
-                if(globalState.isSomethingDeleted(1)){
-                    globalMap.map[globalState.pref_x1-1][globalState.pref_y1-1].deleteCybertruck();
+        if (command != null) {
+            // Update cybertruck di GlobalState kalau menggunakan ability TWEET
+            if (command instanceof TweetCommand) {
+                if (prevState.isSomethingDeleted(1)) {
+                    globalMap.map[prevState.pref_x1 - 1][prevState.pref_y1 - 1].deleteCybertruck();
+                } else if (prevState.isSomethingDeleted(2)) {
+                    globalMap.map[prevState.pref_x2 - 1][prevState.pref_y2 - 1].deleteCybertruck();
                 }
-                else if(globalState.isSomethingDeleted(2)){
-                    globalMap.map[globalState.pref_x2-1][globalState.pref_y2-1].deleteCybertruck();
-                }
-                globalMap.map[((TweetCommand) command).block-1][((TweetCommand) command).lane-1].setCybertruck();
+                globalMap.map[((TweetCommand) command).block - 1][((TweetCommand) command).lane - 1].setCybertruck();
                 curState.setCyberTruck(((TweetCommand) command).block, ((TweetCommand) command).lane);
             }
-        }
-        if (command != null) {
-            LogState transition = new LogState(globalState, this.curState, command);
+
+            // Update berdasarkan LogState
+            LogState transition = new LogState(prevState, this.curState, command);
             this.log.add(transition);
             while (!this.log.isEmpty()) {
                 LogState head = this.log.peek();
                 if (head.currentState.enemy.pos_x - this.globalMap.nxeff > 0) {
                     break;
                 } else {
-                    this.globalState.enemy.update(head, globalMap);
+                    this.prevState.enemy.update(head, globalMap);
                     this.log.remove();
                 }
             }
         }
     }
 
-    public List<Command> searchBestAction(int v){
+    public List<Command> searchBestAction(int v) {
         Search Candidates;
         List<Command> ret;
-        switch(v){
+        switch (v) {
             case 0:
             case 3:
                 Candidates = new Search(this.curState, globalMap, 4, 0);
@@ -108,6 +110,7 @@ public class Bot {
             try {
                 int roundNumber = sc.nextInt();
 
+                /* Potongan kode main yang dipindahkan */
                 String statePath = String.format("./%s/%d/%s", ROUNDS_DIRECTORY, roundNumber, STATE_FILE_NAME);
                 String state = new String(Files.readAllBytes(Paths.get(statePath)));
 
@@ -124,7 +127,7 @@ public class Bot {
                 }
                 System.out.println(String.format("C;%d;%s", roundNumber, command.render()));
                 prevCommand = command;
-                this.globalState = this.curState;
+                this.prevState = this.curState;
             } catch (Exception e) {
                 e.printStackTrace();
             }

@@ -3,10 +3,10 @@ package za.co.entelect.challenge.globalentities;
 import za.co.entelect.challenge.command.Command;
 import za.co.entelect.challenge.entities.GameState;
 import za.co.entelect.challenge.enums.PowerUps;
-import za.co.entelect.challenge.utils.Abilities;
-import za.co.entelect.challenge.utils.Actions;
-import za.co.entelect.challenge.utils.LogState;
-import za.co.entelect.challenge.utils.Supports;
+import za.co.entelect.challenge.constants.utils.Abilities;
+import za.co.entelect.challenge.constants.utils.Actions;
+import za.co.entelect.challenge.constants.utils.LogState;
+import za.co.entelect.challenge.constants.utils.Supports;
 
 
 public class Player {
@@ -20,7 +20,7 @@ public class Player {
     public int tweet;
     public int lizard;
     public int emp;
-    public int nBoost; // if boost doesnt activate, dia 0
+    public int nBoost; // if boost doesnt activate, nBoost = 0
     public int score;
 
 
@@ -43,7 +43,8 @@ public class Player {
     }
 
     public void update(GameState curState, int id) {
-        if(id==1) {
+        /* Update atribut player dan opponent berdasarkan GameState */
+        if (id == 1) {
             this.pos_x = curState.player.position.block;
             this.pos_y = curState.player.position.lane;
             this.speed = curState.player.speed;
@@ -66,8 +67,7 @@ public class Player {
                     this.tweet++;
                 }
             }
-        }
-        else{
+        } else {
             this.pos_x = curState.opponent.position.block;
             this.pos_y = curState.opponent.position.lane;
             this.speed = curState.opponent.speed;
@@ -75,20 +75,15 @@ public class Player {
     }
 
     public void update(LogState state, Map globe) {
-
-//        Cek kalo misalnya kita ketinggalan / salah prediksi lawan.
-//        Kalo offset / speed akhir mereka lebih daripada yang seharusnya,
-//        Kurangi damage sampai logic valid
-
-
-//        bikin simulasi dulu
+        /* Update atribut OPPONENT berdasarkan LogState dan globe */
         Map sim = globe.clone();
         int x_enemy = state.prevState.enemy.pos_x;
         int x_player = state.prevState.player.pos_x;
         int xf_enemy = state.currentState.enemy.pos_x;
-        if(x_enemy <= x_player){
-            sim.createSimulation(x_enemy, xf_enemy);
+        if (x_enemy >= x_player) {
+            sim.createSimulation(x_enemy, xf_enemy); // Seperti buat virtual map
         }
+
         int offsetX = state.currentState.enemy.pos_x - state.prevState.enemy.pos_x
                 + Math.abs(state.prevState.enemy.pos_y - state.currentState.enemy.pos_y);
         int oppSpeed = state.currentState.enemy.speed;
@@ -97,13 +92,11 @@ public class Player {
                 && damage > 0) {
             damage--;
         }
-        state.prevState.enemy.damage = damage; // Update damage
+        state.prevState.enemy.damage = damage;
 
-//        Hitung COMMAND lawan
         Command cmd = state.calcOpponentCommand(sim);
         Player opp;
         if (cmd == null) {
-//        either EMP-ed, atau emg algonya ga jalan (tapi harusnya less likely sih)
             opp = state.prevState.enemy.clone();
             this.boost = opp.boost;
             this.oil = opp.oil;
@@ -113,8 +106,7 @@ public class Player {
             this.nBoost = opp.nBoost;
             this.damage = opp.damage;
             this.score = opp.score;
-        }
-        else{
+        } else {
             GlobalState predResource = Actions.simulateActions(
                     Abilities.convertOffensive(state.action),
                     cmd, state.prevState, sim
@@ -128,15 +120,12 @@ public class Player {
             this.damage = opp.damage;
             this.lizard = Math.max(opp.lizard, 0);
             this.boost = Math.max(opp.boost, 0);
-            if(predResource.isSomethingDeleted(1)){
-                globe.map[predResource.pref_x1-1][predResource.pref_y1-1].deleteCybertruck();
-            }
-            else if(predResource.isSomethingDeleted(2)){
-                globe.map[predResource.pref_x2-1][predResource.pref_y2-1].deleteCybertruck();
+            if (predResource.isSomethingDeleted(1)) {
+                globe.map[predResource.pref_x1 - 1][predResource.pref_y1 - 1].deleteCybertruck();
+            } else if (predResource.isSomethingDeleted(2)) {
+                globe.map[predResource.pref_x2 - 1][predResource.pref_y2 - 1].deleteCybertruck();
             }
         }
-
-
     }
 
     public Player clone() {
@@ -164,7 +153,7 @@ public class Player {
         this.speed = pos.v;
     }
 
-    public void updateResouce(Resource drops){
+    public void updateResouce(Resource drops) {
         this.oil += drops.oil;
         this.lizard += drops.lizard;
         this.tweet += drops.tweet;
@@ -172,7 +161,7 @@ public class Player {
         this.boost += drops.boost;
         this.score += drops.score;
         this.damage = Math.min(5, this.damage + drops.damage);
-        if(drops.bad > 0){
+        if (drops.bad > 0) {
             this.nBoost = 0;
         }
     }
@@ -191,18 +180,18 @@ public class Player {
         }
     }
 
-    public void printAll(){
-        System.out.println("id: "+this.id);
-        System.out.println("pos_x: "+this.pos_x);
+    public void printAll() {
+        System.out.println("id: " + this.id);
+        System.out.println("pos_x: " + this.pos_x);
         System.out.println("pos_y: " + this.pos_y);
-        System.out.println("speed: " +this.speed);
-        System.out.println("damage: "+this.damage);
-        System.out.println("boost: "+this.boost);
-        System.out.println("oil: "+this.oil);
-        System.out.println("tweet: "+this.tweet);
-        System.out.println("lizard: "+this.lizard);
-        System.out.println("emp: "+this.emp);
-        System.out.println("boost: "+this.nBoost);
-        System.out.println("score: "+this.score);
+        System.out.println("speed: " + this.speed);
+        System.out.println("damage: " + this.damage);
+        System.out.println("boost: " + this.boost);
+        System.out.println("oil: " + this.oil);
+        System.out.println("tweet: " + this.tweet);
+        System.out.println("lizard: " + this.lizard);
+        System.out.println("emp: " + this.emp);
+        System.out.println("boost: " + this.nBoost);
+        System.out.println("score: " + this.score);
     }
 }

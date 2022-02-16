@@ -1,37 +1,13 @@
-package za.co.entelect.challenge.utils;
+package za.co.entelect.challenge.constants.utils;
 
 
 import za.co.entelect.challenge.command.Command;
-import za.co.entelect.challenge.entities.Lane;
-import za.co.entelect.challenge.enums.PowerUps;
-import za.co.entelect.challenge.enums.Terrain;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class Supports {
-
     /* Mengecek apakah dua command adalah command yang setipe */
     public static boolean isCommandEqual(Command a, Command b) {
         return a.render().equals(b.render());
     }
-
-    public static List<Terrain> getBlocks(int lane, int startBlock, int length, List<Lane[]> lanes) {
-        Lane[] laneArr = lanes.get(lane - 1);
-        List<Terrain> blocks = new ArrayList<>();
-
-        int startIdx = startBlock - laneArr[0].position.block;
-        int endIdx = startIdx + length - 1;
-        for (int i = startIdx; i <= endIdx && i < laneArr.length; i++) {
-            if (laneArr[i] == null || laneArr[i].terrain == Terrain.FINISH) {
-                break;
-            }
-
-            blocks.add(laneArr[i].terrain);
-        }
-        return blocks;
-    }
-
 
     public static int getCurrentSpeedLimit(int damage) {
         int currentMaxSpeed;
@@ -58,15 +34,6 @@ public class Supports {
                 currentMaxSpeed = -1;
         }
         return currentMaxSpeed;
-    }
-
-    public static Boolean hasPowerUp(PowerUps powerUpToCheck, PowerUps[] available) {
-        for (PowerUps powerUp : available) {
-            if (powerUp.equals(powerUpToCheck)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public static int getAcceleratedSpeed(int speed, int damage) {

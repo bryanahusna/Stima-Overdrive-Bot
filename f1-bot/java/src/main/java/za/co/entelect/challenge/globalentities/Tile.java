@@ -24,11 +24,11 @@ public class Tile {
         return t;
     }
 
-    public boolean isBad(){
-        if(this.layer==Terrain.CYBERTRUCK){
+    public boolean isBad() {
+        if (this.layer == Terrain.CYBERTRUCK) {
             return true;
         }
-        return this.tile==Terrain.MUD||this.tile==Terrain.WALL||this.tile==Terrain.OIL_SPILL;
+        return this.tile == Terrain.MUD || this.tile == Terrain.WALL || this.tile == Terrain.OIL_SPILL;
     }
 
     // equals true jika tile dan layernya sama

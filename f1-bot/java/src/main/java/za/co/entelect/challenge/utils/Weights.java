@@ -1,4 +1,4 @@
-package za.co.entelect.challenge.constants;
+package za.co.entelect.challenge.utils;
 
 /* Weight masing-masing komponen */
 public class Weights {
