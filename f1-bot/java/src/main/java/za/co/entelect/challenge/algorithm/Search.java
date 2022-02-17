@@ -4,7 +4,7 @@ package za.co.entelect.challenge.algorithm;
 import za.co.entelect.challenge.command.Command;
 import za.co.entelect.challenge.globalentities.GlobalState;
 import za.co.entelect.challenge.globalentities.Map;
-import za.co.entelect.challenge.constants.utils.Actions;
+import za.co.entelect.challenge.utils.Actions;
 
 import java.util.ArrayList;
 import java.util.LinkedList;

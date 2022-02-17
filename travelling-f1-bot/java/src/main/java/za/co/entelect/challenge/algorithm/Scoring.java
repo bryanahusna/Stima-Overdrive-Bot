@@ -49,7 +49,7 @@ public class Scoring {
         }
 
         score += (finalPlayer.pos_x - initialPlayer.pos_x) * Weights.POSITION;
-        score += (finalPlayer.speed - initialPlayer.speed) * Weights.SPEED;
+        score += (finalPlayer.speed) * Weights.SPEED;
         score += (finalPlayer.damage - initialPlayer.damage) * Weights.DAMAGE;
         score += (finalPlayer.score - initialPlayer.score) * Weights.SCORE;
         score += (finalPlayer.boost - initialPlayer.boost) * Weights.BOOST;

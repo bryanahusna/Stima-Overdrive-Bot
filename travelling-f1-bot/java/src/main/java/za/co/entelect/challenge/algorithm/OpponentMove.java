@@ -32,7 +32,7 @@ public class OpponentMove {
                     curNode.Actions.add(newCmd);
                     // Cari state setelah command dilaksanakan
                     curNode.State = Actions.simulateActions(
-                            Abilities.ACCELERATE, // BISA DIGANTI (BARU TEMPLATE)
+                            Actions.predictPlayerAction(state),
                             newCmd,
                             p.State.clone(),
                             globe);

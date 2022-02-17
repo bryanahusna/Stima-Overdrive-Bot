@@ -37,17 +37,18 @@ public class Actions {
             }
         }
 
-        // for command that causes preliminary effect
-        player.getFromAction(PlayerAction);
-        enemy.getFromAction(EnemyAction);
-
+        
         // calculate path
         Path PlayerPath = new Path();
         PlayerPath.updatePath(PlayerAction, player);
-
+        
         Path EnemyPath = new Path();
         EnemyPath.updatePath(EnemyAction, enemy);
-
+        
+        // for command that causes preliminary effect
+        player.getFromAction(PlayerAction);
+        enemy.getFromAction(EnemyAction);
+        
         // cybertruck
         Resource PlayerCyber = new Resource(globe, PlayerPath, PlayerAction, true);
         Resource EnemyCyber = new Resource(globe, EnemyPath, EnemyAction, true);
@@ -109,11 +110,19 @@ public class Actions {
         }
 
         if (state.player.pos_x == state.enemy.pos_x - 1
-                && state.player.pos_y == state.enemy.pos_y
-                && state.enemy.speed == 0) {
+                && state.player.pos_y == state.enemy.pos_y) {
             return Abilities.DO_NOTHING;
         }
         return (new OpponentMove(state, globe, depth)).bestMove(state, globe).get(0);
+    }
+
+    public static Command predictPlayerAction(GlobalState state){
+        if(state.enemy.pos_x==state.player.pos_x-1
+            && state.player.pos_y == state.enemy.pos_y
+        ){
+            return Abilities.DO_NOTHING;
+        }
+        return Abilities.ACCELERATE;
     }
 
     public static Command bestAttack(List<Command> Commands, GlobalState curState, Map globe) {
@@ -157,8 +166,6 @@ public class Actions {
                         cyber_x--;
                     }
                     if (cyber_x < state1.player.pos_x) {
-                        // TODO:
-                        curState.deleteCyberTruck(0, 0);
                         return Abilities.TWEET(cyber_y, cyber_x);
                     }
                 }

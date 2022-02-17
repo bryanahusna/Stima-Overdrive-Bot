@@ -32,8 +32,8 @@ public class Path {
             this.dx += v;
         } else if (Supports.isCommandEqual(cmd, Abilities.TURN_RIGHT)) {
             if (p.speed > 0) {
-                this.dx = p.speed - 1;
-                this.dy = 1;
+                this.dx += p.speed - 1;
+                this.dy++;
             }
             this.v = p.speed;
         } else if (Supports.isCommandEqual(cmd, Abilities.TURN_LEFT)) {
