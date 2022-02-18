@@ -17,15 +17,11 @@ public class Path {
     public int damage = 0;
     public boolean collided = false;
 
-    public void updateCoor(Player player){
-        Player p = player.clone();
-        this.x = p.pos_x;
-        this.y = p.pos_y;
-    }
-
     public void updatePath(Command cmd, Player player) {
         // Mirip user-defined constructor
         Player p = player.clone();
+        this.x = p.pos_x;
+        this.y = p.pos_y;
         this.damage = p.damage;
         this.collided = false;
         if (Supports.isCommandEqual(cmd, Abilities.ACCELERATE)) {
