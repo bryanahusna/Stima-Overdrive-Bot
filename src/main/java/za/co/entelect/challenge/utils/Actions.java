@@ -3,6 +3,7 @@ package za.co.entelect.challenge.utils;
 
 import za.co.entelect.challenge.algorithm.OpponentMove;
 import za.co.entelect.challenge.command.Command;
+import za.co.entelect.challenge.command.FixCommand;
 import za.co.entelect.challenge.globalentities.*;
 
 import java.util.ArrayList;
@@ -40,9 +41,11 @@ public class Actions {
         
         // calculate path
         Path PlayerPath = new Path();
+        PlayerPath.updateCoor(player);
         PlayerPath.updatePath(PlayerAction, player);
         
         Path EnemyPath = new Path();
+        PlayerPath.updateCoor(player);
         EnemyPath.updatePath(EnemyAction, enemy);
         
         // for command that causes preliminary effect
@@ -125,12 +128,23 @@ public class Actions {
         return Abilities.ACCELERATE;
     }
 
+    public static Command findPossibleMovement(GlobalState state, Map globe){
+        GlobalState state_c = state.clone();
+        Command cmd = new FixCommand();
+        while(cmd instanceof FixCommand){
+            cmd = Actions.predictAction(state_c, globe, 3);
+            state_c.enemy.damage -= 2;
+            state_c.enemy.damage = Math.max(0, state_c.enemy.damage);
+        }
+        return cmd;
+    }
+
     public static Command bestAttack(List<Command> Commands, GlobalState curState, Map globe) {
         // offensive move
-        GlobalState state1 = Actions.simulateActions(Commands.get(0), Actions.predictAction(curState, globe, 3), curState, globe);
+        GlobalState state1 = Actions.simulateActions(Commands.get(0), Actions.findPossibleMovement(curState, globe), curState, globe);
         GlobalState state2 = null;
         if (Commands.size() > 2) {
-            state2 = Actions.simulateActions(Commands.get(1), Actions.predictAction(state1, globe, 3), state1, globe);
+            state2 = Actions.simulateActions(Commands.get(1), Actions.findPossibleMovement(state1, globe), state1, globe);
         }
         int x = curState.player.pos_x;
         int x1 = curState.enemy.pos_x;
@@ -156,36 +170,35 @@ public class Actions {
         }
         if (curState.player.tweet > 0) {
             if (x > x1 && state2 != null) {
-                // kalau abis round ini prediksinya FIX, ga usah simpen cybertruck
-                if (!Supports.isCommandEqual(Actions.predictAction(state1, globe, 3), Abilities.FIX)) {
-                    // simpen agak jauh dari lawan, biar kasus kalau abs(x-x1)=1 ga terjadi
-                    // hati-hati juga, bisa jadi lawan nge-EMP kita pas placing cybertruck
-                    int cyber_x = state1.enemy.pos_x + 2;
-                    int cyber_y = state2.enemy.pos_y;
-                    if (Math.abs(y - y1) <= 1 && cyber_x == x && cyber_y == y) {
-                        cyber_x--;
-                    }
-                    if (cyber_x < state1.player.pos_x) {
-                        return Abilities.TWEET(cyber_y, cyber_x);
-                    }
+                // simpen agak jauh dari lawan, biar kasus kalau abs(x-x1)=1 ga terjadi
+                // hati-hati juga, bisa jadi lawan nge-EMP kita pas placing cybertruck
+                int cyber_x = state1.enemy.pos_x + 2;
+                int cyber_y = state2.enemy.pos_y;
+                if (Math.abs(y - y1) <= 1 && cyber_x == x && cyber_y == y) {
+                    cyber_x--;
+                }
+                if (cyber_x < state1.player.pos_x) {
+                    return Abilities.TWEET(cyber_y, cyber_x);
                 }
             }
         }
         if (curState.player.oil > 0) {
-            for (int px = Math.max(1, x - 10); px <= Math.min(1500, x + 10); px++) {
-                if (y > 1) {
-                    if (globe.getTile(px, y - 1).isBad()) {
-                        return Abilities.OIL;
+            if (x1 + curState.enemy.speed >= x && y == y1) {
+                for (int px = Math.max(1, x - 10); px <= Math.min(1500, x + 10); px++) {
+                    if (y > 1) {
+                        if (globe.getTile(px, y - 1).isBad()) {
+                            return Abilities.OIL;
+                        }
+                    }
+                    if (y < 4) {
+                        if (globe.getTile(px, y + 1).isBad()) {
+                            return Abilities.OIL;
+                        }
                     }
                 }
-                if (y < 4) {
-                    if (globe.getTile(px, y + 1).isBad()) {
-                        return Abilities.OIL;
-                    }
+                if (curState.player.oil >= 3) {
+                    return Abilities.OIL;
                 }
-            }
-            if (curState.player.oil >= 3) {
-                return Abilities.OIL;
             }
         }
         return Abilities.DO_NOTHING;
