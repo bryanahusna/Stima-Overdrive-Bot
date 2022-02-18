@@ -1,8 +1,0 @@
-{
-  "author": "Travelling F1 Problem",
-  "email": "f1@example.com",
-  "nickName": "travelling-F1-problem",
-  "botLocation": "/target",
-  "botFileName": "java-f1-bot-jar-with-dependencies.jar",
-  "botLanguage": "java"
-}
